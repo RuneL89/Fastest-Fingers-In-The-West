@@ -12,6 +12,11 @@ import {
   wordForOutlaw, type OutlawDef,
 } from "../config";
 import { buildBackground, buildOutlawTextures, buildProps } from "../pixelart";
+import genIdleUrl from "../assets/gen/cactus-jack-idle-nes.png";
+import genAimUrl from "../assets/gen/cactus-jack-aim-nes.png";
+import genHitUrl from "../assets/gen/cactus-jack-hit-nes.png";
+import genDownUrl from "../assets/gen/cactus-jack-down-nes.png";
+import genStreetUrl from "../assets/gen/main-street-nes.png";
 
 type Phase =
   | "title" | "intro" | "tension" | "race" | "resolve"
@@ -95,6 +100,32 @@ export class DuelScene extends Phaser.Scene {
     return this.def.wpm + this.endlessCycle * ENDLESS_WPM_STEP;
   }
 
+  preload(): void {
+    this.load.image("gen-cj-idle", genIdleUrl);
+    this.load.image("gen-cj-aim", genAimUrl);
+    this.load.image("gen-cj-hit", genHitUrl);
+    this.load.image("gen-cj-down", genDownUrl);
+    this.load.image("gen-street", genStreetUrl);
+  }
+
+  /** Use AI art for outlaw 0 (Cactus Jack PoC); other outlaws stay code-drawn. */
+  private get genArt(): boolean {
+    return this.outlawIndex === 0 && this.textures.exists("gen-cj-idle");
+  }
+
+  private outlawTex(pose: string): string {
+    return this.genArt ? `gen-cj-${pose}` : `outlaw-${this.outlawIndex}-${pose}`;
+  }
+
+  private fitOutlaw(): void {
+    if (this.genArt) {
+      // match the code sprite's on-screen height (44px grid * scale 2)
+      this.outlaw.setScale(88 / this.outlaw.height);
+    } else {
+      this.outlaw.setScale(1);
+    }
+  }
+
   create(): void {
     buildBackground(this);
     buildProps(this);
@@ -107,7 +138,11 @@ export class DuelScene extends Phaser.Scene {
     this.keys.typingActive = () => this.phase === "race" && !this.paused;
     this.best = storage.get<number>(BEST_KEY, 0);
 
-    this.add.image(0, 0, "bg").setOrigin(0, 0);
+    if (this.textures.exists("gen-street")) {
+      this.add.image(0, 0, "gen-street").setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
+    } else {
+      this.add.image(0, 0, "bg").setOrigin(0, 0);
+    }
 
     // outlaw + his removable hat
     this.outlaw = this.add.image(CX, 236, "outlaw-0-idle").setOrigin(0.5, 1);
@@ -305,11 +340,18 @@ export class DuelScene extends Phaser.Scene {
     this.cameras.main.flash(70, 255, 248, 220);
     if (playerWon) {
       this.outlawLives--;
-      this.outlaw.setTexture(`outlaw-${this.outlawIndex}-aim`);
       this.burstBlood(this.outlaw.x, this.outlaw.y - 56);
-      this.outlawHat.setVisible(true).setPosition(this.outlaw.x, this.outlaw.y - 84).setRotation(0);
-      this.tweens.add({ targets: this.outlawHat, y: this.outlawHat.y - 40, angle: 200, duration: 700 });
-      this.tweens.add({ targets: this.outlaw, angle: 88, y: this.outlaw.y + 26, duration: 650, ease: "Bounce.easeOut" });
+      if (this.genArt) {
+        // AI frames: recoil pose, hat flies inside the art itself
+        this.outlaw.setTexture("gen-cj-hit");
+        this.fitOutlaw();
+        this.tweens.add({ targets: this.outlaw, y: this.outlaw.y + 10, duration: 300, yoyo: true });
+      } else {
+        this.outlaw.setTexture(`outlaw-${this.outlawIndex}-aim`);
+        this.outlawHat.setVisible(true).setPosition(this.outlaw.x, this.outlaw.y - 84).setRotation(0);
+        this.tweens.add({ targets: this.outlawHat, y: this.outlawHat.y - 40, angle: 200, duration: 700 });
+        this.tweens.add({ targets: this.outlaw, angle: 88, y: this.outlaw.y + 26, duration: 650, ease: "Bounce.easeOut" });
+      }
       this.audio.sfx("thud");
     } else {
       this.playerLives--;
@@ -325,6 +367,10 @@ export class DuelScene extends Phaser.Scene {
       if (this.outlawLives <= 0) {
         this.phase = "outlawdown";
         this.phaseT = TIMING.outlawDown;
+        if (this.genArt) {
+          this.outlaw.setTexture("gen-cj-down");
+          this.fitOutlaw();
+        }
         this.bounty += this.def.bounty;
         this.banner.setText("OUTLAW DOWN");
         this.bannerSub.setText(`BOUNTY +$${this.def.bounty}`);
@@ -391,7 +437,8 @@ export class DuelScene extends Phaser.Scene {
 
   private resetOutlawSprite(): void {
     this.outlaw.setVisible(true);
-    this.outlaw.setTexture(`outlaw-${this.outlawIndex}-idle`);
+    this.outlaw.setTexture(this.outlawTex("idle"));
+    this.fitOutlaw();
     this.outlaw.setPosition(CX, 236).setAngle(0).setAlpha(1);
     this.outlawHat.setVisible(false);
     this.tweens.killTweensOf(this.outlaw);
@@ -497,9 +544,12 @@ export class DuelScene extends Phaser.Scene {
             this.aiTimer += Math.max(0.03, d);
           }
           const p = this.aiChars / Math.max(1, this.word.length);
-          const pose = p < 0.34 ? "idle" : p < 0.86 ? "draw" : "aim";
-          const key = `outlaw-${this.outlawIndex}-${pose}`;
-          if (this.outlaw.texture.key !== key) this.outlaw.setTexture(key);
+          const pose = this.genArt ? (p < 0.5 ? "idle" : "aim") : p < 0.34 ? "idle" : p < 0.86 ? "draw" : "aim";
+          const key = this.outlawTex(pose);
+          if (this.outlaw.texture.key !== key) {
+            this.outlaw.setTexture(key);
+            this.fitOutlaw();
+          }
           if (this.aiChars >= this.word.length && this.phase === "race") this.resolveExchange(false);
           break;
         }

@@ -82,4 +82,25 @@ palette-quantized version (`*-nes.png`). The game loads the quantized file.
 
 ## Accepted frames log
 
-(filled in as generations land)
+PoC executed 2026-11-21. cloud.leonardo.ai was unreachable from the build
+sandbox (TLS blocked by egress filter), so generation ran through the Kimi
+image gateway with the same prompt pack and anchor-then-poses flow. The
+Leonardo path above stays ready to run locally with your own key.
+
+All 5 images accepted on first generation:
+
+| Frame | Source | Notes |
+|---|---|---|
+| cactus-jack-idle | text-to-image, transparent bg, 1024x1280 | anchor frame |
+| cactus-jack-aim | idle as reference image | same outlaw, revolvers up |
+| cactus-jack-hit | idle as reference image | hat flying, recoiling |
+| cactus-jack-down | idle as reference image | fallen, hat beside him |
+| main-street | text-to-image, 1024x1024 | no people |
+
+Post-processing: trim to alpha bounding box, nearest-neighbor downscale
+(outlaws to 44 px wide, background to 135 px), quantize to NES palette,
+alpha thresholded at 128. Output: `src/game/assets/gen/*-nes.png`.
+
+Integration: `DuelScene.preload()` loads the 5 images; outlaw 0 (Cactus Jack)
+uses gen art with idle/aim during the race, hit on losing an exchange, down
+on defeat. Other outlaws and the code background remain as fallback.
