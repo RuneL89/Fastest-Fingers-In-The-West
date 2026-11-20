@@ -62,14 +62,15 @@ export function gridTexture(
 /* Outlaw                                                              */
 /* ------------------------------------------------------------------ */
 
-// 22 x 44. H hat, K skin, S shirt, P pants, B boots, G gun, E eye/black.
+// 22 x 44. H hat, b hat band, K skin, S shirt, V vest, T belt, U buckle,
+// P pants, B boots, G gun, E eye/black.
 const OUTLAW_IDLE: Grid = [
-  "........HHHHHH........",
+  ".......HHHHHHHH.......",
   "......HHHHHHHHHH......",
-  ".....HHHHHHHHHHHH.....",
-  ".....hhhhhhhhhhhh.....",
-  "...HHHHHHHHHHHHHHHH...",
-  "..hhhhhhhhhhhhhhhhhh..",
+  "......HHHHHHHHHH......",
+  "......HHHHHHHHHH......",
+  ".HH...bbbbbbbbbb...HH.",
+  ".HHHHHHHHHHHHHHHHHHHH.",
   "......KKKKKKKKKK......",
   "......KKKKKKKKKK......",
   "......KEKKKKEKKK......",
@@ -91,7 +92,7 @@ const OUTLAW_IDLE: Grid = [
   "...SSSSSSSSSSSSSSS....",
   "....SSSSSSSSSSSSSS....",
   ".....SSSSSSSSSSSS.....",
-  ".....PPPPPPPPPPPP.....",
+  ".....TTTTTUUTTTTT.....",
   ".....PPPPPPPPPPPP.....",
   ".....PPPPPPPPPPPP.....",
   ".....PPPPPPPPPPPP.....",
@@ -139,16 +140,19 @@ const AIM_ROWS: Record<number, string> = {
 
 const HAT_GRID: Grid = [
   "....HHHHHH....",
-  "..HHHHHHHHHH..",
-  "..hhhhhhhhhh..",
+  "....HHHHHH....",
+  "H...bbbbbb...H",
   "HHHHHHHHHHHHHH",
-  "hhhhhhhhhhhhhh",
 ];
 
 export function outlawColors(def: OutlawDef): Record<string, string> {
   return {
     H: def.hat,
     h: shade(def.hat, 0.65),
+    b: shade(def.hat, 0.42),
+    V: PAL.black,
+    T: PAL.brownDark,
+    U: PAL.gold,
     K: PAL.skin,
     k: shade(PAL.skin, 0.8),
     E: PAL.black,
@@ -195,7 +199,16 @@ export function buildOutlawTextures(scene: Phaser.Scene, def: OutlawDef, index: 
   ];
   for (const [pose, grid] of poses) {
     const { grid: g, colors } = applyFeature(grid, def);
-    gridTexture(scene, `outlaw-${index}-${pose}`, g, colors, 2, true);
+    // dark vest panels over the shirt, arms stay in shirt color (Wild Gunman look)
+    const vested = g.map((row, y) => {
+      if (y < 15 || y > 25) return row;
+      const cells = row.split("");
+      for (const x of [5, 6, 15, 16]) {
+        if (cells[x] === "S" || cells[x] === "s") cells[x] = "V";
+      }
+      return cells.join("");
+    });
+    gridTexture(scene, `outlaw-${index}-${pose}`, vested, colors, 2, true);
   }
   gridTexture(scene, `hat-${index}`, HAT_GRID, outlawColors(def), 2, true);
 }
@@ -304,13 +317,7 @@ export function buildProps(scene: Phaser.Scene): void {
     ".Y.Y.Y.",
     "...Y...",
   ], { Y: PAL.gold, W: PAL.white }, 2);
-  gridTexture(scene, "player-hat", [
-    "....HHHHHH....",
-    "..HHHHHHHHHH..",
-    "..hhhhhhhhhh..",
-    "HHHHHHHHHHHHHH",
-    "hhhhhhhhhhhhhh",
-  ], { H: PAL.brown, h: PAL.brownDark }, 2);
+  gridTexture(scene, "player-hat", HAT_GRID, { H: PAL.brown, b: PAL.brownDark }, 2, true);
   // HUD life icon: little hat, outlined so it reads on any sky color
   gridTexture(scene, "life-hat", [
     "..HHHH..",

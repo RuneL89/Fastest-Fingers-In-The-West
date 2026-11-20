@@ -43,7 +43,7 @@ export interface OutlawDef {
 
 /** Fixed ladder, 10 outlaws, escalating draw speed. */
 export const LADDER: OutlawDef[] = [
-  { name: "CACTUS JACK", wpm: 28, bounty: 100, hat: PAL.brown, shirt: PAL.cream, pants: PAL.brownDark, feature: "none" },
+  { name: "CACTUS JACK", wpm: 28, bounty: 100, hat: PAL.brown, shirt: PAL.cream, pants: PAL.brownDark, feature: "bandana" },
   { name: "DUSTY PETE", wpm: 36, bounty: 150, hat: PAL.gray, shirt: PAL.orange, pants: PAL.brownDark, feature: "bandana" },
   { name: "ONE-EYE ROY", wpm: 44, bounty: 200, hat: PAL.black, shirt: PAL.greenLight, pants: PAL.gray, feature: "eyepatch" },
   { name: "MONTANA MAE", wpm: 50, bounty: 250, hat: PAL.red, shirt: PAL.white, pants: PAL.red, feature: "hair" },
