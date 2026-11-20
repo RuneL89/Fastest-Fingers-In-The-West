@@ -2,10 +2,16 @@
 """Generate game art via Leonardo.ai and quantize it to the game's NES palette.
 
 Usage:
-    LEONARDO_API_KEY=... python3 scripts/generate-art.py
+    LEONARDO_API_KEY=... python3 scripts/generate-art.py [step]
 
-PoC scope: Cactus Jack outlaw sprite + Wild West main street background.
-Raw downloads and NES-quantized output go to src/game/assets/gen/.
+Steps: idle | poses | background | all (default)
+
+Flow (see ART.md for the full plan):
+  1. idle       — Phoenix 1.0 text-to-image, the anchor frame for Cactus Jack
+  2. poses      — image-to-image from the accepted idle frame (aim/hit/down)
+  3. background — main street backdrop, text-to-image
+Every accepted frame is downscaled + quantized to the NES palette and saved
+next to the raw PNG in src/game/assets/gen/.
 """
 import json
 import os
@@ -19,8 +25,56 @@ OUT = ROOT / "src" / "game" / "assets" / "gen"
 OUT.mkdir(parents=True, exist_ok=True)
 
 API = "https://cloud.leonardo.ai/api/rest/v1"
-# Phoenix 1.0 — Leonardo's own model, strong prompt adherence, free tier.
+# Phoenix 1.0 — strong prompt adherence, negative-prompt support, free tier.
 PHOENIX_ID = "6b645e3a-d64f-4346-97f0-02c9be83da79"
+SEED = 4219421  # fixed across the whole frame set for consistency
+
+STYLE_POS = (
+    "16-bit pixel art sprite, NES video game character, crisp square pixels, "
+    "flat solid colors, black outline around the whole figure, small sprite "
+    "proportions, centered, plain solid background"
+)
+NEG = "gradients, anti-aliasing, soft edges, photograph, 3d render, text, extra limbs"
+IDENTITY = (
+    "Wild West outlaw gunslinger, flat-brim cowboy hat with dark band, red "
+    "bandana covering lower face, brown leather vest over faded blue shirt, "
+    "gun belt with holster"
+)
+
+PROMPTS = {
+    "cactus-jack-idle": {
+        "prompt": f"{IDENTITY}, standing idle facing the viewer, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640,
+    },
+    "cactus-jack-aim": {
+        "prompt": f"{IDENTITY}, arms raised aiming two revolvers forward at the viewer, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "cactus-jack-idle", "init_strength": 0.55,
+    },
+    "cactus-jack-hit": {
+        "prompt": f"{IDENTITY}, stumbling backward, hat flying off his head, recoiling from a gunshot, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "cactus-jack-idle", "init_strength": 0.5,
+    },
+    "cactus-jack-down": {
+        "prompt": f"{IDENTITY}, lying flat on his back on the ground, arms spread, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "cactus-jack-idle", "init_strength": 0.5,
+    },
+    "main-street": {
+        "prompt": (
+            "8-bit pixel art Wild West desert town main street seen from a duel "
+            "position, dirt road in the center, wooden storefronts and saloon on "
+            "both sides, cacti and rocks in the distance, mountains and blue sky, "
+            "flat solid colors, limited NES color palette, crisp square pixels, "
+            "NES video game background, horizon in upper third, no people, "
+            "no characters"
+        ),
+        "negative_prompt": "gradients, photograph, 3d render, text, watermark, people, characters",
+        "width": 1024, "height": 1024,
+    },
+}
 
 # NES 2C02 master palette subset used by the game (mirrors PAL in src/game/config.ts).
 NES_PALETTE = [
@@ -35,82 +89,54 @@ NES_PALETTE = [
     (128, 64, 32), (64, 32, 16), (32, 16, 8),
 ]
 
-PROMPTS = {
-    "cactus-jack": {
-        "prompt": (
-            "16-bit pixel art sprite of a Wild West outlaw gunslinger standing idle "
-            "facing the viewer, flat-brim cowboy hat with dark band, red bandana "
-            "covering lower face, brown leather vest over faded blue shirt, gun belt "
-            "with holster, black outline around the whole figure, flat colors, no "
-            "gradients, no shading highlights, no anti-aliasing, crisp square pixels, "
-            "NES video game character, small sprite proportions, centered, plain "
-            "solid background"
-        ),
-        "negative_prompt": (
-            "smooth gradients, painterly, soft edges, anti-aliasing, realistic, "
-            "photograph, 3d render, blurry, watercolor, thin outlines, extra limbs, "
-            "text, watermark"
-        ),
-        "width": 512,
-        "height": 640,
-    },
-    "main-street": {
-        "prompt": (
-            "8-bit pixel art Wild West desert town main street seen from a duel "
-            "position, dirt road in the center, wooden storefronts and saloon on "
-            "both sides, cacti and rocks in the distance, mountains and blue sky, "
-            "flat colors, limited NES color palette, no gradients, crisp square "
-            "pixels, NES video game background, horizon in upper third"
-        ),
-        "negative_prompt": (
-            "smooth gradients, painterly, realistic, photograph, 3d render, blurry, "
-            "text, watermark, characters, people"
-        ),
-        "width": 1024,
-        "height": 1024,
-    },
-}
 
-
-def api_post(path, payload, key):
+def api_req(method, path, key, payload=None, raw_data=None, content_type="application/json"):
+    data = raw_data if raw_data is not None else (
+        json.dumps(payload).encode() if payload is not None else None)
     req = urllib.request.Request(
-        API + path,
-        data=json.dumps(payload).encode(),
+        API + path, data=data, method=method,
         headers={
             "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json",
             "Accept": "application/json",
+            "Content-Type": content_type,
         },
     )
-    with urllib.request.urlopen(req, timeout=60) as r:
+    with urllib.request.urlopen(req, timeout=120) as r:
         return json.loads(r.read())
 
 
-def generate(key, spec, name):
-    resp = api_post(
-        "/generations",
-        {
-            "modelId": PHOENIX_ID,
-            "prompt": spec["prompt"],
-            "negative_prompt": spec["negative_prompt"],
-            "width": spec["width"],
-            "height": spec["height"],
-            "num_images": 1,
-            "public": False,
-        },
-        key,
-    )
+def upload_init_image(key, path):
+    """Upload a local PNG to Leonardo and return its init_image_id."""
+    boundary = "----ffitw"
+    body = (
+        f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; "
+        f"filename=\"{path.name}\"\r\nContent-Type: image/png\r\n\r\n"
+    ).encode() + path.read_bytes() + f"\r\n--{boundary}--\r\n".encode()
+    resp = api_req("POST", "/init-image", key, raw_data=body,
+                   content_type=f"multipart/form-data; boundary={boundary}")
+    return resp["uploadInitImage"]["id"]
+
+
+def generate(key, spec, name, init_id=None):
+    payload = {
+        "modelId": PHOENIX_ID,
+        "prompt": spec["prompt"],
+        "negative_prompt": spec["negative_prompt"],
+        "width": spec["width"],
+        "height": spec["height"],
+        "num_images": 1,
+        "seed": SEED,
+        "public": False,
+    }
+    if init_id:
+        payload["init_image_id"] = init_id
+        payload["init_strength"] = spec["init_strength"]
+    resp = api_req("POST", "/generations", key, payload)
     gen_id = resp["sdGenerationJob"]["generationId"]
     print(f"[{name}] generation {gen_id} queued")
-    for _ in range(40):
+    for _ in range(48):
         time.sleep(5)
-        with urllib.request.urlopen(
-            urllib.request.Request(
-                f"{API}/generations/{gen_id}", headers={"Authorization": f"Bearer {key}"}
-            ),
-            timeout=30,
-        ) as r:
-            data = json.loads(r.read())
+        data = api_req("GET", f"/generations/{gen_id}", key)
         gen = data["generations_by_pk"]
         if gen and gen.get("status") == "COMPLETE":
             url = gen["generated_images"][0]["url"]
@@ -144,14 +170,37 @@ def quantize_to_nes(path, name, target_w):
     return out
 
 
+def run_step(key, step):
+    if step in ("idle", "all"):
+        name = "cactus-jack-idle"
+        raw = generate(key, PROMPTS[name], name)
+        if raw:
+            quantize_to_nes(raw, name, target_w=44)
+    if step in ("poses", "all"):
+        idle_raw = OUT / "cactus-jack-idle.png"
+        if not idle_raw.exists():
+            sys.exit("cactus-jack-idle.png missing — run the idle step first")
+        init_id = upload_init_image(key, idle_raw)
+        print(f"init image uploaded: {init_id}")
+        for name in ("cactus-jack-aim", "cactus-jack-hit", "cactus-jack-down"):
+            raw = generate(key, PROMPTS[name], name, init_id=init_id)
+            if raw:
+                quantize_to_nes(raw, name, target_w=44)
+    if step in ("background", "all"):
+        name = "main-street"
+        raw = generate(key, PROMPTS[name], name)
+        if raw:
+            quantize_to_nes(raw, name, target_w=135)
+
+
 def main():
     key = os.environ.get("LEONARDO_API_KEY")
     if not key:
         sys.exit("Set LEONARDO_API_KEY")
-    for name, spec in PROMPTS.items():
-        raw = generate(key, spec, name)
-        if raw:
-            quantize_to_nes(raw, name, target_w=44 if name == "cactus-jack" else 135)
+    step = sys.argv[1] if len(sys.argv) > 1 else "all"
+    if step not in ("idle", "poses", "background", "all"):
+        sys.exit("step must be: idle | poses | background | all")
+    run_step(key, step)
 
 
 if __name__ == "__main__":

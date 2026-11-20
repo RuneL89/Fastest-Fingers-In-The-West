@@ -48,9 +48,38 @@ the distance, mountains and blue sky, flat colors, limited NES color palette, no
 gradients, crisp square pixels, NES video game background, horizon in upper third
 ```
 
+## PoC generation plan (5 images, one job each)
+
+1. `cactus-jack-idle` — anchor frame. Full-body outlaw facing viewer, 512x640, plain solid background.
+2. `cactus-jack-aim` — image-to-image from idle, arms raised aiming revolvers.
+3. `cactus-jack-hit` — image-to-image from idle, recoiling, hat flying.
+4. `cactus-jack-down` — image-to-image from idle, lying flat.
+5. `main-street` — text-to-image backdrop, 1024x1024, no people.
+
+Flow: Phoenix 1.0 base frame → accept winner → pose frames via `init_image_id`
++ `init_strength` ~0.55 (raise only if frames drift) → fixed seed across the
+frame set → change one variable per run, log accepted settings below.
+
+Post-processing: downscale to pixel grid (outlaw ~44 px tall), nearest-neighbor,
+quantize to NES palette, trim, save as `*-nes.png`. This step is what makes
+AI art match the code-drawn sprites; Leonardo has no pixel-art-native model.
+
+Animation mapping: idle = intro/tension, aim = race, hit+down = outlaw loses
+exchange (blood stays procedural), idle = player loses. Muzzle flash, blood,
+hat-prop stay code-drawn.
+
+Prompting rules (from Leonardo docs): positive prompt does the heavy lifting
+("flat solid colors, crisp square pixels"); negative prompt is short and
+specific (gradients, anti-aliasing, soft edges, photograph, 3d render, text,
+extra limbs); never write "no" or "don't" in negatives; one reference per job.
+
 ## Generation
 
     LEONARDO_API_KEY=... python3 scripts/generate-art.py
 
 Output lands in `src/game/assets/gen/` as both the raw Leonardo PNG and the
 palette-quantized version (`*-nes.png`). The game loads the quantized file.
+
+## Accepted frames log
+
+(filled in as generations land)
