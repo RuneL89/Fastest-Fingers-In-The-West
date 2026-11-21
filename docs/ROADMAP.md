@@ -15,7 +15,7 @@ Ship "Fastest Fingers in the West" v1 on the Clicks Communicator (Android) by la
 
 Approved and pushed: Main Street background, town map, Yello Billy WANTED poster, 4 townsfolk base bodies (worried/flinch/happy), Stew Potts representative sprite (3 states), Billy full frame set (idle/draw/aim/flinch/fire/hit/down).
 
-## Phase 0 — DEV: Prerequisites
+## Phase 0 — DEV: Prerequisites (COMPLETE 2026-11-22)
 
 The foundation everything else stands on. No new art needed (uses Phase -1 assets).
 
@@ -27,13 +27,13 @@ The foundation everything else stands on. No new art needed (uses Phase -1 asset
 
 **Exit criteria:** title screen boots, difficulty select works, a placeholder prologue box displays, the game reaches the map screen.
 
-## Phase 0A — ART: Map Presentation Polish
+## Phase 0A — ART: Map Presentation Polish (COMPLETE 2026-11-22 — all six posters generated; lock drawn in-engine)
 
 1. Remaining five WANTED posters (Rye, Snakeeyes, Goose, Dan, Bart) — head-only black neutral mugshot standard.
 2. Lock overlay art for Town Hall poster.
 3. Poster tear-down / representative placement is in-engine; no art needed beyond posters.
 
-## Phase 1 — DEV: Map + First Full Duel (Yello Billy)
+## Phase 1 — DEV: Map + First Full Duel (Yello Billy) (COMPLETE 2026-11-22)
 
 1. Map screen: poster overlays, lock logic, freed states (poster off, Stew visible), debug toggle to free all five.
 2. Race mechanic carried over from the PoC and cleaned: shared phrase, both sides fill, first to finish fires.
