@@ -146,6 +146,27 @@ Yello Billy set:
 - **Art:** all four frames generated and approved 2026-11-21
   (`src/game/assets/gen/sam-snakeeyes-{idle,aim,hit,down}.png`).
 
+### Goon: Greg Goose — The Trapper (interview complete 2026-11-21)
+
+- **Name:** Greg Goose (Canadian fur trapper).
+- **Build:** Broad-shouldered, wide, powerful. Clean simple silhouette.
+- **Head:** Raccoon-skin cap with striped tail. Prominent scar over right
+  eye. Short stubble, not a beard.
+- **Colors:** Heavy brown fur coat over red plaid lumberjack shirt, green
+  trousers, plain big leather boots.
+- **Weapon:** Long hunting rifle (the only goon with a long gun). Carried in
+  both hands.
+- **Aim pose:** Rifle shouldered, cheek against stock, one eye squinted
+  shut along the sights, barrel pointed at the player.
+- **Hit animation:** Hunched forward clutching his belly, rifle dangling in
+  one hand.
+- **Defeat:** Face down on the ground, raccoon cap off beside his head,
+  rifle dropped beside him.
+- **Personality (dialogue, deferred batch):** wilderness man, talks about
+  people like varmints.
+- **Art:** all four frames generated and approved 2026-11-21
+  (`src/game/assets/gen/greg-goose-{idle,aim,hit,down}.png`).
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
@@ -188,7 +209,7 @@ then the five representatives). Status per character:
 - [x] Goon 1: Yello Billy (The Coward, art approved)
 - [x] Goon 2: Three-Finger Rye (The Drunk, art approved)
 - [x] Goon 3: Sam Snakeeyes (The Card Sharp, art approved)
-- [ ] Goon 4: Slim Sawyer
+- [x] Goon 4: Greg Goose (The Trapper, art approved)
 - [ ] Goon 5: Bull Nolan
 - [ ] Black Bart
 - [ ] Representative 1
