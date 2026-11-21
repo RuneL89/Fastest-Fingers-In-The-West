@@ -46,5 +46,17 @@ console.log("gameover shot taken; lives:", await page.evaluate(() => window.__du
 await page.keyboard.press("Space");
 await page.waitForTimeout(800);
 await page.screenshot({ path: `${out}/13-restart-title.png` });
+
+// Start another full run: the prologue and duel must reset, not reuse old state.
+await page.keyboard.press("Space");
+await page.waitForTimeout(600);
+await page.screenshot({ path: `${out}/14-second-run-prologue.png` });
+await page.keyboard.press("Escape");
+await page.waitForTimeout(700);
+await page.mouse.click(canvas.x + 0.70 * canvas.width, canvas.y + 0.70 * canvas.height);
+await page.waitForFunction(() => window.__duel?.().phase === "opening", null, { timeout: 15000 });
+await page.waitForTimeout(500);
+await page.screenshot({ path: `${out}/15-second-run-duel.png` });
+console.log("second run duel:", await page.evaluate(() => window.__duel?.().phase));
 console.log("CONSOLE ERRORS:", errors);
 await browser.close();
