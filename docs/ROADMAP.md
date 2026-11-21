@@ -10,6 +10,16 @@ Ship "Fastest Fingers in the West" v1 on the Clicks Communicator (Android) by la
 - Everything is pushed to GitHub as it lands.
 - Playable-and-rough beats polished-but-partial: each milestone ends with something you can play in the browser on your laptop.
 
+## Phase -1 — Art for the First Duel (user-approved before Phase 0)
+
+All art needed through the end of the Yello Billy duel, generated and approved by the user before any building starts:
+
+1. Main Street duel background (tormented townsfolk peeking, center kept clear for the fighter)
+2. Yello Billy WANTED mugshot poster (traditional wild west style, for the map)
+3. Top-down town map (six locations, dirt roads, wild west flavoring)
+4. Townsfolk base bodies ×4 (matron, old-timer, laborer, kid; palette-swappable, pose swaps in-engine)
+5. Main Street representative sprite (pending representative interview; placeholder if needed)
+
 ## Phase 0 — Prerequisites
 
 The foundation everything else stands on. Nothing here is visible gameplay; all of it is structural.
