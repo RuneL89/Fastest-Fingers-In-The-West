@@ -66,8 +66,8 @@ export class DuelScene extends Phaser.Scene {
   private wordFull!: Phaser.GameObjects.Text;
   private wordTyped!: Phaser.GameObjects.Text;
   private aiBarLabel!: Phaser.GameObjects.Text;
-  private aiBarTrack!: Phaser.GameObjects.Rectangle;
-  private aiBarFill!: Phaser.GameObjects.Rectangle;
+  private aiWordFull!: Phaser.GameObjects.Text;
+  private aiWordTyped!: Phaser.GameObjects.Text;
   private hudName!: Phaser.GameObjects.Text;
   private hudLives!: Phaser.GameObjects.Text;
   private hudGoonLives!: Phaser.GameObjects.Text;
@@ -157,14 +157,14 @@ export class DuelScene extends Phaser.Scene {
     this.wordFull = this.add.text(CX, 62, "", { ...wordStyle, color: PAL.gray }).setOrigin(0, 0.5);
     this.wordTyped = this.add.text(CX, 62, "", { ...wordStyle, color: PAL.white }).setOrigin(0, 0.5);
 
-    // Outlaw typing progress: fills left-to-right while the goon writes.
-    this.aiBarLabel = this.add.text(CX, 76, "OUTLAW TYPING", {
+    // Outlaw typing progress: the same word, letters lighting up in orange
+    // as the goon writes — you see his speed letter by letter, not just a fill.
+    this.aiBarLabel = this.add.text(CX, 75, "OUTLAW TYPING", {
       fontFamily: FONT, fontSize: "6px", color: PAL.orange,
     }).setOrigin(0.5).setVisible(false);
-    this.aiBarTrack = this.add.rectangle(CX, 83, 110, 6, 0x1a0e04, 0.9)
-      .setStrokeStyle(1, 0xf0dcb0).setVisible(false);
-    this.aiBarFill = this.add.rectangle(CX - 54, 83, 108, 4, 0xf87858, 1)
-      .setOrigin(0, 0.5).setScale(0, 1).setVisible(false);
+    const aiWordStyle = { fontFamily: FONT, fontSize: "16px" };
+    this.aiWordFull = this.add.text(CX, 90, "", { ...aiWordStyle, color: "#5a4a3a" }).setOrigin(0, 0.5).setVisible(false);
+    this.aiWordTyped = this.add.text(CX, 90, "", { ...aiWordStyle, color: PAL.orange }).setOrigin(0, 0.5).setVisible(false);
     this.banner = this.add.text(CX, 120, "", {
       fontFamily: FONT, fontSize: "12px", color: PAL.white,
       stroke: PAL.black, strokeThickness: 4,
@@ -302,8 +302,9 @@ export class DuelScene extends Phaser.Scene {
     this.wordFull.setX(CX - this.wordFull.width / 2);
     this.wordTyped.setX(this.wordFull.x).setText("");
     this.aiBarLabel.setVisible(true);
-    this.aiBarTrack.setVisible(true);
-    this.aiBarFill.setVisible(true).setScale(0, 1);
+    this.aiWordFull.setText(this.word);
+    this.aiWordFull.setX(CX - this.aiWordFull.width / 2).setVisible(true);
+    this.aiWordTyped.setX(this.aiWordFull.x).setText("").setVisible(true);
     this.audio.sfx("reveal");
     this.audio.setMood("duel");
     if (this.keys.isTouch) this.tapHint.setVisible(true);
@@ -385,8 +386,8 @@ export class DuelScene extends Phaser.Scene {
     this.wordFull.setText("");
     this.wordTyped.setText("");
     this.aiBarLabel.setVisible(false);
-    this.aiBarTrack.setVisible(false);
-    this.aiBarFill.setVisible(false);
+    this.aiWordFull.setVisible(false).setText("");
+    this.aiWordTyped.setVisible(false).setText("");
   }
 
   private refreshHud(): void {
@@ -434,7 +435,9 @@ export class DuelScene extends Phaser.Scene {
           const d = this.aiBaseDelay() * (1 + (this.rng() * 2 - 1) * 0.45);
           this.aiTimer += Math.max(0.03, d);
         }
-        this.aiBarFill.setScale(this.aiChars / Math.max(1, this.word.length), 1);
+        if (this.aiWordTyped.text.length !== this.aiChars) {
+          this.aiWordTyped.setText(this.word.substring(0, this.aiChars));
+        }
         if (this.flinchT <= 0) {
           const p = this.aiChars / Math.max(1, this.word.length);
           const pose = p < 0.34 ? "idle" : p < 0.86 ? "draw" : "aim";
