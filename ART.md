@@ -112,3 +112,4 @@ on defeat. Other outlaws and the code background remain as fallback.
 - `map-tombwood-creek.png` — town map v2, approved (icon-readable low-detail standard set)
 
 Regeneration notes: v1 background and map rejected as too detailed; v1 poster (full-body, colored, nervous) rejected in favor of head-only neutral black mugshot.
+- `npc-matron.png`, `npc-oldtimer.png`, `npc-laborer.png`, `npc-townman.png` — townsfolk base bodies v2, approved 2026-11-22 (very low detail standard; kid body dropped per user: no children)
