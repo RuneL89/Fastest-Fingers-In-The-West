@@ -5,7 +5,7 @@
  * (representative thank-you) or game over. No pause (RULES.md).
  */
 import Phaser from "phaser";
-import { VIEW, PAL } from "../config";
+import { VIEW, PAL, RENDER_SCALE } from "../config";
 import { FIGHTERS, type FighterDef } from "../data/fighters";
 import { locationById, type LocationDef } from "../data/locations";
 import { DIALOGUE } from "../data/dialogue";
@@ -72,7 +72,16 @@ export class DuelScene extends Phaser.Scene {
   private tapHint!: Phaser.GameObjects.Text;
   private flashFx!: Phaser.GameObjects.Rectangle;
 
-  constructor() { super("duel"); }
+  constructor() {
+    super({
+      key: "duel",
+      cameras: {
+        zoom: RENDER_SCALE,
+        scrollX: -VIEW.W * (RENDER_SCALE - 1) / 2,
+        scrollY: -VIEW.H * (RENDER_SCALE - 1) / 2,
+      },
+    });
+  }
 
   init(data: { locationId?: string }): void {
     this.loc = locationById(data.locationId ?? "main-street");

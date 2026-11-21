@@ -27,7 +27,7 @@ for (let i = 0; i < 14; i++) {
 }
 await page.screenshot({ path: `${out}/m1-map.png` });
 // Billy poster
-await tap(0.70, 0.70);
+await tap(0.55, 0.70);
 await page.waitForTimeout(1000);
 for (let i = 0; i < 8; i++) {
   if ((await page.evaluate(() => window.__duel?.().phase)) === "options") break;

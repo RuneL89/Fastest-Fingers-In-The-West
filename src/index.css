@@ -25,7 +25,6 @@ html, body, #root {
 #game-canvas {
   display: block;
   touch-action: none;
-  image-rendering: pixelated;
 }
 
 /* Hidden field that summons the OS soft keyboard on touch devices.

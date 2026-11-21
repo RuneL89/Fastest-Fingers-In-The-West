@@ -3,14 +3,23 @@
  * Starting again begins the run from the top (RULES.md).
  */
 import Phaser from "phaser";
-import { VIEW, PAL } from "../config";
+import { VIEW, PAL, RENDER_SCALE } from "../config";
 import { resetRun } from "../state";
 
 const FONT = '"Press Start 2P", monospace';
 const CX = VIEW.W / 2;
 
 export class GameOverScene extends Phaser.Scene {
-  constructor() { super("gameover"); }
+  constructor() {
+    super({
+      key: "gameover",
+      cameras: {
+        zoom: RENDER_SCALE,
+        scrollX: -VIEW.W * (RENDER_SCALE - 1) / 2,
+        scrollY: -VIEW.H * (RENDER_SCALE - 1) / 2,
+      },
+    });
+  }
 
   create(): void {
     this.cameras.main.setBackgroundColor("#000000");

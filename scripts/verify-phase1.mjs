@@ -30,11 +30,11 @@ for (let i = 0; i < 14; i++) {
 await page.waitForTimeout(600);
 await shot("03-map");
 
-// click Billy's poster (map hotspot 0.70,0.70 of 270x300 game view)
+// click Billy's poster (poster hotspot 0.55,0.70 of the 270x300 game view)
 // find canvas position: FIT scale — canvas fills 540 wide, height 600
 const canvas = await page.locator("canvas#game-canvas").boundingBox();
 const gx = (nx, ny) => ({ x: canvas.x + nx * canvas.width, y: canvas.y + ny * canvas.height });
-const billy = gx(0.70, 0.70);
+const billy = gx(0.55, 0.70);
 await page.mouse.click(billy.x, billy.y);
 await page.waitForTimeout(1200);
 await shot("04-duel-opening");

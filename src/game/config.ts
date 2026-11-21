@@ -5,6 +5,8 @@
  */
 
 export const VIEW = { W: 270, H: 300 } as const;
+/** The world stays at VIEW size, while the canvas stores 4x as many pixels. */
+export const RENDER_SCALE = 4;
 
 /** Strict NES-palette subset (authentic 2C02 entries). */
 export const PAL = {

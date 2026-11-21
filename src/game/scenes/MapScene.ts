@@ -5,7 +5,7 @@
  * Phase 1: only Main Street's duel is built; other posters show a stub note.
  */
 import Phaser from "phaser";
-import { VIEW, PAL } from "../config";
+import { VIEW, PAL, RENDER_SCALE } from "../config";
 import { LOCATIONS } from "../data/locations";
 import { run, townHallUnlocked } from "../state";
 import { AudioSystem } from "../audio";
@@ -22,7 +22,16 @@ export class MapScene extends Phaser.Scene {
   private toastBg!: Phaser.GameObjects.Rectangle;
   private toastTimer?: Phaser.Time.TimerEvent;
 
-  constructor() { super("map"); }
+  constructor() {
+    super({
+      key: "map",
+      cameras: {
+        zoom: RENDER_SCALE,
+        scrollX: -VIEW.W * (RENDER_SCALE - 1) / 2,
+        scrollY: -VIEW.H * (RENDER_SCALE - 1) / 2,
+      },
+    });
+  }
 
   preload(): void {
     this.loadingBar = new LoadingBar(this, "TOMBWOOD CREEK");
@@ -46,8 +55,11 @@ export class MapScene extends Phaser.Scene {
         this.add.image(x, y, `${loc.repKey}-happy`)
           .setScale(30 / this.textures.get(`${loc.repKey}-happy`).getSourceImage().height);
       } else {
-        const poster = this.add.image(x, y, `poster-${loc.fighterId}`);
-        poster.setScale(44 / poster.height);
+        const posterX = loc.posterX * VIEW.W;
+        const posterY = loc.posterY * VIEW.H;
+        const poster = this.add.image(posterX, posterY, `poster-${loc.fighterId}`);
+        // Large enough for WANTED lettering and the outlaw's face to read on phones.
+        poster.setScale(64 / poster.height);
         poster.setInteractive({ useHandCursor: true });
         poster.on("pointerdown", () => this.pick(loc.id));
         if (loc.id === "town-hall" && !townHallUnlocked()) {
@@ -57,7 +69,7 @@ export class MapScene extends Phaser.Scene {
           lock.fillStyle(0xf8b800, 1).fillRect(-6, -2, 12, 10);
           lock.lineStyle(2, 0x503000, 1).strokeRect(-6, -2, 12, 10);
           lock.fillStyle(0x503000, 1).fillRect(-1, 1, 2, 4);
-          lock.setPosition(x + 14, y - 12);
+          lock.setPosition(posterX + 14, posterY - 12);
         }
       }
     }

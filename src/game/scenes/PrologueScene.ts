@@ -3,7 +3,7 @@
  * Illustrated slides arrive in Phase 5A; v1 shows text over tinted panels.
  */
 import Phaser from "phaser";
-import { VIEW, PAL } from "../config";
+import { VIEW, PAL, RENDER_SCALE } from "../config";
 import { PROLOGUE } from "../data/dialogue";
 import { TextBox } from "../ui/TextBox";
 import { GameInput } from "../input";
@@ -17,7 +17,16 @@ export class PrologueScene extends Phaser.Scene {
   private skipText!: Phaser.GameObjects.Text;
   private keys!: GameInput;
 
-  constructor() { super("prologue"); }
+  constructor() {
+    super({
+      key: "prologue",
+      cameras: {
+        zoom: RENDER_SCALE,
+        scrollX: -VIEW.W * (RENDER_SCALE - 1) / 2,
+        scrollY: -VIEW.H * (RENDER_SCALE - 1) / 2,
+      },
+    });
+  }
 
   create(): void {
     this.index = 0;

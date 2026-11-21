@@ -16,13 +16,13 @@ await page.waitForFunction(() => !!window.__map, { timeout: 10000 });
 
 // Town Hall locked toast
 const canvas = await page.locator("canvas#game-canvas").boundingBox();
-await page.mouse.click(canvas.x + 0.50 * canvas.width, canvas.y + 0.45 * canvas.height);
+await page.mouse.click(canvas.x + 0.64 * canvas.width, canvas.y + 0.45 * canvas.height);
 await page.waitForTimeout(500);
 await page.screenshot({ path: `${out}/11-townhall-locked.png` });
 await page.waitForTimeout(2200);
 
 // into Billy's duel
-await page.mouse.click(canvas.x + 0.70 * canvas.width, canvas.y + 0.70 * canvas.height);
+await page.mouse.click(canvas.x + 0.55 * canvas.width, canvas.y + 0.70 * canvas.height);
 await page.waitForTimeout(1000);
 for (let i = 0; i < 6; i++) {
   if ((await page.evaluate(() => window.__duel?.().phase)) === "options") break;
@@ -53,7 +53,7 @@ await page.waitForTimeout(600);
 await page.screenshot({ path: `${out}/14-second-run-prologue.png` });
 await page.keyboard.press("Escape");
 await page.waitForTimeout(700);
-await page.mouse.click(canvas.x + 0.70 * canvas.width, canvas.y + 0.70 * canvas.height);
+await page.mouse.click(canvas.x + 0.55 * canvas.width, canvas.y + 0.70 * canvas.height);
 await page.waitForFunction(() => window.__duel?.().phase === "opening", null, { timeout: 15000 });
 await page.waitForTimeout(500);
 await page.screenshot({ path: `${out}/15-second-run-duel.png` });

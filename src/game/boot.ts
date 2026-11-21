@@ -1,6 +1,7 @@
 /**
  * boot.ts — startGame(canvas)/stopGame() contract used by pages/Home.tsx.
- * Phaser renders into the existing #game-canvas, FIT-scaled, crisp pixel art.
+ * Phaser renders into the existing #game-canvas with a high-resolution backing
+ * store, so detailed artwork stays sharp on modern phone screens.
  */
 import Phaser from "phaser";
 import { TitleScene } from "./scenes/TitleScene";
@@ -8,7 +9,7 @@ import { PrologueScene } from "./scenes/PrologueScene";
 import { MapScene } from "./scenes/MapScene";
 import { DuelScene } from "./scenes/DuelScene";
 import { GameOverScene } from "./scenes/GameOverScene";
-import { VIEW } from "./config";
+import { VIEW, RENDER_SCALE } from "./config";
 
 let game: Phaser.Game | null = null;
 
@@ -29,8 +30,8 @@ export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
     type: Phaser.CANVAS,
     canvas,
     parent: "game-root",
-    width: VIEW.W,
-    height: VIEW.H,
+    width: VIEW.W * RENDER_SCALE,
+    height: VIEW.H * RENDER_SCALE,
     pixelArt: true,
     roundPixels: true,
     render: { preserveDrawingBuffer: true },
@@ -39,8 +40,8 @@ export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: VIEW.W,
-      height: VIEW.H,
+      width: VIEW.W * RENDER_SCALE,
+      height: VIEW.H * RENDER_SCALE,
     },
     scene: [TitleScene, PrologueScene, MapScene, DuelScene, GameOverScene],
   });

@@ -2,7 +2,7 @@
  * TitleScene.ts — title wordmark + difficulty select → prologue.
  */
 import Phaser from "phaser";
-import { VIEW, PAL } from "../config";
+import { VIEW, PAL, RENDER_SCALE } from "../config";
 import { run, resetRun, type Difficulty } from "../state";
 import { AudioSystem } from "../audio";
 import { GameInput } from "../input";
@@ -17,7 +17,16 @@ export class TitleScene extends Phaser.Scene {
   private selected = 1;
   private blink = 0;
 
-  constructor() { super("title"); }
+  constructor() {
+    super({
+      key: "title",
+      cameras: {
+        zoom: RENDER_SCALE,
+        scrollX: -VIEW.W * (RENDER_SCALE - 1) / 2,
+        scrollY: -VIEW.H * (RENDER_SCALE - 1) / 2,
+      },
+    });
+  }
 
   create(): void {
     this.options = [];
