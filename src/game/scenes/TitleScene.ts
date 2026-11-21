@@ -20,12 +20,18 @@ export class TitleScene extends Phaser.Scene {
   constructor() { super("title"); }
 
   create(): void {
+    this.options = [];
+    this.selected = 1;
+    this.blink = 0;
     this.keys = new GameInput();
     this.keys.attach();
     this.keys.onControl = (k) => {
       if (k === "start") this.start((["easy", "normal", "hard"] as Difficulty[])[this.selected]);
     };
-    this.events.once("shutdown", () => this.keys.dispose());
+    this.events.once("shutdown", () => {
+      this.keys.dispose();
+      this.audio.dispose();
+    });
     this.audio = new AudioSystem();
     this.audio.setMood("title");
     this.cameras.main.setBackgroundColor("#1a0f06");

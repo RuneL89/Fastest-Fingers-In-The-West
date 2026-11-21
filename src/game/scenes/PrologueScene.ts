@@ -20,6 +20,7 @@ export class PrologueScene extends Phaser.Scene {
   constructor() { super("prologue"); }
 
   create(): void {
+    this.index = 0;
     this.keys = new GameInput();
     this.keys.attach();
     this.keys.onControl = (k) => { if (k === "start") this.box.advance(); };
@@ -33,7 +34,7 @@ export class PrologueScene extends Phaser.Scene {
       fontFamily: FONT, fontSize: "8px", color: PAL.cream,
     }).setOrigin(0.5);
 
-    this.box = new TextBox(this, 140);
+    this.box = new TextBox(this, 140, "down");
     this.box.onAdvance = () => this.next();
     this.showSlide();
 

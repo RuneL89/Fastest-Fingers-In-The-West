@@ -11,28 +11,34 @@ export class TextBox extends Phaser.GameObjects.Container {
   private bodyText: Phaser.GameObjects.Text;
   private nameLabel: Phaser.GameObjects.Text;
   private hint: Phaser.GameObjects.Text;
+  private panel: Phaser.GameObjects.Rectangle;
+  private inner: Phaser.GameObjects.Rectangle;
   private full = "";
   private shown = 0;
   private revealTimer = 0;
   onAdvance: (() => void) | null = null;
 
-  constructor(scene: Phaser.Scene, y = VIEW.H - 64) {
+  constructor(
+    scene: Phaser.Scene,
+    private readonly baseY = VIEW.H - 64,
+    private readonly grow: "up" | "down" = "up",
+  ) {
     super(scene, 0, 0);
     const h = 56;
-    const panel = scene.add.rectangle(VIEW.W / 2, y + h / 2, VIEW.W - 12, h, 0x503000, 0.96)
+    this.panel = scene.add.rectangle(VIEW.W / 2, baseY + h / 2, VIEW.W - 12, h, 0x503000, 0.96)
       .setStrokeStyle(2, 0xac7c00);
-    const inner = scene.add.rectangle(VIEW.W / 2, y + h / 2, VIEW.W - 18, h - 6, 0x2a1a08, 1);
-    this.nameLabel = scene.add.text(12, y + 5, "", {
+    this.inner = scene.add.rectangle(VIEW.W / 2, baseY + h / 2, VIEW.W - 18, h - 6, 0x2a1a08, 1);
+    this.nameLabel = scene.add.text(12, baseY + 5, "", {
       fontFamily: FONT, fontSize: "8px", color: PAL.gold,
     });
-    this.bodyText = scene.add.text(12, y + 18, "", {
+    this.bodyText = scene.add.text(12, baseY + 18, "", {
       fontFamily: FONT, fontSize: "8px", color: PAL.white,
       wordWrap: { width: VIEW.W - 28 }, lineSpacing: 4,
     });
-    this.hint = scene.add.text(VIEW.W - 12, y + h - 10, ">", {
+    this.hint = scene.add.text(VIEW.W - 12, baseY + h - 10, ">", {
       fontFamily: FONT, fontSize: "8px", color: PAL.cream,
-    }).setOrigin(1, 0.5);
-    this.add([panel, inner, this.nameLabel, this.bodyText, this.hint]);
+    }).setOrigin(1, 0.5).setVisible(false);
+    this.add([this.panel, this.inner, this.nameLabel, this.bodyText, this.hint]);
     scene.add.existing(this);
     this.setDepth(100);
   }
@@ -43,7 +49,20 @@ export class TextBox extends Phaser.GameObjects.Container {
     this.full = text;
     this.shown = 0;
     this.revealTimer = 0;
+    this.fitPanelToText();
     this.bodyText.setText("");
+  }
+
+  /** Measure the complete wrapped line, then reserve enough wooden panel for it. */
+  private fitPanelToText(): void {
+    this.bodyText.setText(this.full);
+    const h = Math.max(56, Math.ceil(this.bodyText.height + 32));
+    const top = this.grow === "up" ? this.baseY + 56 - h : this.baseY;
+    this.panel.setPosition(VIEW.W / 2, top + h / 2).setSize(VIEW.W - 12, h);
+    this.inner.setPosition(VIEW.W / 2, top + h / 2).setSize(VIEW.W - 18, h - 6);
+    this.nameLabel.setPosition(12, top + 5);
+    this.bodyText.setPosition(12, top + 18);
+    this.hint.setPosition(VIEW.W - 12, top + h - 10);
   }
 
   /** Immediately finish the current reveal; returns true if it was mid-reveal. */

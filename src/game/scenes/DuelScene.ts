@@ -15,6 +15,7 @@ import { AudioSystem } from "../audio";
 import { GameInput } from "../input";
 import { TextBox } from "../ui/TextBox";
 import { loadAssets } from "./preload";
+import { LoadingBar } from "../ui/LoadingBar";
 import { buildProps } from "../pixelart";
 
 const FONT = '"Press Start 2P", monospace';
@@ -36,6 +37,7 @@ function mulberry32(seed: number): () => number {
 
 export class DuelScene extends Phaser.Scene {
   private audio!: AudioSystem;
+  private loadingBar?: LoadingBar;
   private keys!: GameInput;
   private rng = mulberry32(Date.now());
 
@@ -77,9 +79,28 @@ export class DuelScene extends Phaser.Scene {
     this.fighter = FIGHTERS[this.loc.fighterId];
   }
 
-  preload(): void { loadAssets(this); }
+  preload(): void {
+    this.loadingBar = new LoadingBar(this, "PREPARING THE DUEL");
+    this.load.on("progress", (value: number) => this.loadingBar?.setProgress(value));
+    loadAssets(this);
+  }
 
   create(): void {
+    this.loadingBar?.destroy(true);
+    this.loadingBar = undefined;
+    // Phaser reuses scene instances; reset every mutable field for a fresh duel.
+    this.phase = "opening";
+    this.phaseT = 0;
+    this.playerWonExchange = true;
+    this.word = "";
+    this.typed = 0;
+    this.aiChars = 0;
+    this.aiTimer = 0;
+    this.flinchT = 0;
+    this.selectedOption = 0;
+    this.npcs = [];
+    this.optionTexts = [];
+    this.optionsPanel = undefined;
     buildProps(this); // life-hat, blood pixels, flash textures
     this.audio = new AudioSystem();
     this.keys = new GameInput();

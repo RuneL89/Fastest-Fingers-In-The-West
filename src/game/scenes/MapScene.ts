@@ -10,23 +10,32 @@ import { LOCATIONS } from "../data/locations";
 import { run, townHallUnlocked } from "../state";
 import { AudioSystem } from "../audio";
 import { loadAssets } from "./preload";
+import { LoadingBar } from "../ui/LoadingBar";
 
 const FONT = '"Press Start 2P", monospace';
 const CX = VIEW.W / 2;
 
 export class MapScene extends Phaser.Scene {
   private audio!: AudioSystem;
+  private loadingBar?: LoadingBar;
   private toast!: Phaser.GameObjects.Text;
   private toastBg!: Phaser.GameObjects.Rectangle;
   private toastTimer?: Phaser.Time.TimerEvent;
 
   constructor() { super("map"); }
 
-  preload(): void { loadAssets(this); }
+  preload(): void {
+    this.loadingBar = new LoadingBar(this, "TOMBWOOD CREEK");
+    this.load.on("progress", (value: number) => this.loadingBar?.setProgress(value));
+    loadAssets(this);
+  }
 
   create(): void {
+    this.loadingBar?.destroy(true);
+    this.loadingBar = undefined;
     this.audio = new AudioSystem();
     this.audio.setMood("title");
+    this.events.once("shutdown", () => this.audio.dispose());
     this.add.image(0, 0, "map").setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
 
     for (const loc of LOCATIONS) {

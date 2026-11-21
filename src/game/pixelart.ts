@@ -287,6 +287,8 @@ export function buildBackground(scene: Phaser.Scene): void {
 /* ------------------------------------------------------------------ */
 
 export function buildProps(scene: Phaser.Scene): void {
+  // Texture keys survive scene restarts; create this shared set only once.
+  if (scene.textures.exists("vulture-0")) return;
   gridTexture(scene, "vulture-0", [
     "K......K",
     "KK....KK",
