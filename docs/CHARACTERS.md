@@ -31,11 +31,25 @@ formula to follow:
 
 - The name IS the gimmick (Glass Joe = fragile; Bald Bull = charges like a bull).
 - One visual exaggeration that silhouettes at 44 px.
-- The personality shows up in the fight itself, not just the intro: each
-  goon's typing behavior (jitter, hesitation, stumble patterns) is his
-  tell, the way Piston Honda bows or Don Flamenco dances.
+- Dialogue is pre-duel only: the exchange before the fight is where the
+  personality speaks. During the duel, identity is carried by the sprite
+  animation frames alone. Battle mechanics are identical for all goons
+  (STORY.md: equal difficulty); no typing-behavior tells.
 - Earnest tone rule (from STORY.md): archetypes must stay fond, never cruel.
   Goons are menacing clowns, not mockeries of anyone real.
+
+## Goon archetypes (locked 2026-11-21)
+
+Five goons, five archetypes, duel order to be set in the individual
+interviews:
+
+| Archetype | Punch-Out ancestor | Core image |
+|---|---|---|
+| The Coward | Glass Joe | Huge hat, hunched, bluster that cracks |
+| The Drunk | Soda Popinski | Stained vest, flask, sways in idle |
+| The Card Sharp | new | Sleeve garters, coin flip, bets and odds |
+| The Trapper | new | Bear-fur coat, wide furry silhouette |
+| The Dandy Showboat | Don Flamenco | Feather, garish colors, preening |
 
 Every goon has a unique identity in two places:
 
