@@ -11,6 +11,8 @@ export type ControlKey = "start" | "pause" | "mute" | "restart" | "resetBest" | 
 
 export class GameInput {
   onChar: ((c: string) => void) | null = null;
+  /** True after the first touch gesture — used to show the tap-to-type hint. */
+  isTouch = false;
   onControl: ((k: ControlKey) => void) | null = null;
   /** While a race is live, M/R/X are letters to type, not shortcuts. */
   typingActive: () => boolean = () => false;
@@ -49,7 +51,10 @@ export class GameInput {
   };
 
   private readonly pointerdown = (e: PointerEvent) => {
-    if (e.pointerType === "touch") this.focusMobile();
+    if (e.pointerType === "touch") {
+      this.isTouch = true;
+      this.focusMobile();
+    }
   };
 
   private readonly input = () => {
@@ -73,6 +78,8 @@ export class GameInput {
     el.setAttribute("autocapitalize", "none");
     el.setAttribute("spellcheck", "false");
     el.setAttribute("enterkeyhint", "go");
+    el.setAttribute("inputmode", "text");
+    el.setAttribute("autocorrect", "off");
     el.setAttribute("aria-label", "typing input");
     document.body.appendChild(el);
     el.addEventListener("input", this.input);

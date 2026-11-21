@@ -67,6 +67,7 @@ export class DuelScene extends Phaser.Scene {
   private hudLives!: Phaser.GameObjects.Text;
   private hudGoonLives!: Phaser.GameObjects.Text;
   private banner!: Phaser.GameObjects.Text;
+  private tapHint!: Phaser.GameObjects.Text;
   private flashFx!: Phaser.GameObjects.Rectangle;
 
   constructor() { super("duel"); }
@@ -127,9 +128,18 @@ export class DuelScene extends Phaser.Scene {
       stroke: PAL.black, strokeThickness: 4,
     }).setOrigin(0.5);
 
+    this.tapHint = this.add.text(CX, 270, "TAP SCREEN TO OPEN KEYBOARD", {
+      fontFamily: FONT, fontSize: "8px", color: PAL.cream,
+      stroke: PAL.black, strokeThickness: 3,
+    }).setOrigin(0.5).setVisible(false);
+
     this.box = new TextBox(this);
     this.box.onAdvance = () => this.onDialogueAdvance();
     this.input.on("pointerdown", () => {
+      if (this.phase === "race") {
+        this.keys.focusMobile();
+        this.tapHint.setVisible(false);
+      }
       if (this.phase !== "options") this.box.advance();
     });
     this.input.keyboard!.on("keydown-SPACE", () => {
@@ -250,6 +260,7 @@ export class DuelScene extends Phaser.Scene {
     this.wordTyped.setX(this.wordFull.x).setText("");
     this.audio.sfx("reveal");
     this.audio.setMood("duel");
+    if (this.keys.isTouch) this.tapHint.setVisible(true);
   }
 
   private aiBaseDelay(): number {
@@ -323,6 +334,7 @@ export class DuelScene extends Phaser.Scene {
   }
 
   private clearWord(): void {
+    this.tapHint?.setVisible(false);
     this.wordBg.setVisible(false);
     this.wordFull.setText("");
     this.wordTyped.setText("");
@@ -337,6 +349,7 @@ export class DuelScene extends Phaser.Scene {
     if (this.phase !== "race") return;
     if (c !== this.word[this.typed].toLowerCase()) return;
     this.typed++;
+    this.tapHint.setVisible(false);
     this.audio.sfx("click");
     this.wordTyped.setText(this.word.substring(0, this.typed));
     // per-keystroke flinch (visual only)
