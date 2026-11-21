@@ -14,15 +14,20 @@ await page.waitForTimeout(500);
 await page.keyboard.press("Escape"); // skip prologue
 await page.waitForFunction(() => !!window.__map, { timeout: 10000 });
 
-// Town Hall locked toast
+// Town Hall locked modal
 const canvas = await page.locator("canvas#game-canvas").boundingBox();
-await page.mouse.click(canvas.x + 0.64 * canvas.width, canvas.y + 0.45 * canvas.height);
+const gx = (nx, ny) => ({ x: canvas.x + nx * canvas.width, y: canvas.y + ny * canvas.height });
+await page.mouse.click(canvas.x + 0.435 * canvas.width, canvas.y + 0.565 * canvas.height);
 await page.waitForTimeout(500);
 await page.screenshot({ path: `${out}/11-townhall-locked.png` });
-await page.waitForTimeout(2200);
+// tap away to close the modal
+await page.mouse.click(gx(0.5, 0.55).x, gx(0.5, 0.55).y);
+await page.waitForTimeout(400);
 
-// into Billy's duel
-await page.mouse.click(canvas.x + 0.55 * canvas.width, canvas.y + 0.70 * canvas.height);
+// into Billy's duel: poster sign, then START DUEL in the modal
+await page.mouse.click(canvas.x + 0.62 * canvas.width, canvas.y + 0.70 * canvas.height);
+await page.waitForTimeout(500);
+await page.mouse.click(gx(0.5, 264 / 300).x, gx(0.5, 264 / 300).y);
 await page.waitForTimeout(1000);
 for (let i = 0; i < 6; i++) {
   if ((await page.evaluate(() => window.__duel?.().phase)) === "options") break;
@@ -53,7 +58,9 @@ await page.waitForTimeout(600);
 await page.screenshot({ path: `${out}/14-second-run-prologue.png` });
 await page.keyboard.press("Escape");
 await page.waitForTimeout(700);
-await page.mouse.click(canvas.x + 0.55 * canvas.width, canvas.y + 0.70 * canvas.height);
+await page.mouse.click(canvas.x + 0.62 * canvas.width, canvas.y + 0.70 * canvas.height);
+await page.waitForTimeout(500);
+await page.mouse.click(canvas.x + 0.5 * canvas.width, canvas.y + (264 / 300) * canvas.height);
 await page.waitForFunction(() => window.__duel?.().phase === "opening", null, { timeout: 15000 });
 await page.waitForTimeout(500);
 await page.screenshot({ path: `${out}/15-second-run-duel.png` });

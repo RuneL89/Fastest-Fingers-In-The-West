@@ -12,9 +12,17 @@ import { GameOverScene } from "./scenes/GameOverScene";
 import { VIEW, RENDER_SCALE } from "./config";
 
 let game: Phaser.Game | null = null;
+/**
+ * StrictMode mounts the hosting effect twice and startGame awaits font
+ * loading, so without this token both continuations would create a Phaser
+ * game on the canvas. The leftover game's input listeners eat every pointer
+ * event (they preventDefault before the visible game sees it).
+ */
+let startToken = 0;
 
 export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
   stopGame();
+  const token = ++startToken;
   try {
     await Promise.race([
       Promise.all([
@@ -26,6 +34,7 @@ export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
   } catch {
     // font failed: monospace fallback still renders the game
   }
+  if (token !== startToken) return; // a newer startGame or stopGame superseded us
   game = new Phaser.Game({
     type: Phaser.CANVAS,
     canvas,
@@ -48,6 +57,7 @@ export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
 }
 
 export function stopGame(): void {
+  startToken++; // invalidate any in-flight startGame continuation
   if (game) {
     game.destroy(true);
     game = null;

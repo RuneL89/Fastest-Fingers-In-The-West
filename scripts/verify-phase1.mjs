@@ -27,15 +27,21 @@ for (let i = 0; i < 14; i++) {
   await page.keyboard.press("Space");
   await page.waitForTimeout(500);
 }
+await page.waitForFunction(() => !!window.__map, null, { timeout: 60000 });
 await page.waitForTimeout(600);
 await shot("03-map");
 
-// click Billy's poster (poster hotspot 0.55,0.70 of the 270x300 game view)
+// click Billy's poster sign (poster hotspot 0.62,0.70 of the 270x300 game view)
 // find canvas position: FIT scale — canvas fills 540 wide, height 600
 const canvas = await page.locator("canvas#game-canvas").boundingBox();
 const gx = (nx, ny) => ({ x: canvas.x + nx * canvas.width, y: canvas.y + ny * canvas.height });
-const billy = gx(0.55, 0.70);
+const billy = gx(0.62, 0.70);
 await page.mouse.click(billy.x, billy.y);
+await page.waitForTimeout(600);
+await shot("03b-poster-modal");
+// START DUEL button sits at the modal center-bottom (y 264 of 300)
+const startBtn = gx(0.5, 264 / 300);
+await page.mouse.click(startBtn.x, startBtn.y);
 await page.waitForTimeout(1200);
 await shot("04-duel-opening");
 console.log("phase:", (await probe())?.phase);
@@ -57,7 +63,7 @@ for (let i = 0; i < 6; i++) {
   await page.keyboard.press("Space");
   await page.waitForTimeout(500);
 }
-await page.waitForFunction(() => window.__duel?.().phase === "race", { timeout: 15000 });
+await page.waitForFunction(() => window.__duel?.().phase === "race", null, { timeout: 15000 });
 await shot("07-race");
 
 // type the word
@@ -68,7 +74,7 @@ console.log("after word 1:", await probe());
 await shot("08-hit");
 
 // second exchange
-await page.waitForFunction(() => window.__duel?.().phase === "race", { timeout: 15000 });
+await page.waitForFunction(() => window.__duel?.().phase === "race", null, { timeout: 15000 });
 const word2 = (await probe()).word;
 for (const ch of word2.toLowerCase()) { await page.keyboard.press(ch); await page.waitForTimeout(90); }
 await page.waitForTimeout(1000);

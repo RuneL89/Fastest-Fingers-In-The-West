@@ -26,8 +26,11 @@ for (let i = 0; i < 14; i++) {
   await page.waitForTimeout(400);
 }
 await page.screenshot({ path: `${out}/m1-map.png` });
-// Billy poster
-await tap(0.55, 0.70);
+// Billy poster sign → modal → START DUEL button
+await tap(0.62, 0.70);
+await page.waitForTimeout(700);
+await page.screenshot({ path: `${out}/m1b-poster-modal.png` });
+await tap(0.5, 264 / 300);
 await page.waitForTimeout(1000);
 for (let i = 0; i < 8; i++) {
   if ((await page.evaluate(() => window.__duel?.().phase)) === "options") break;
