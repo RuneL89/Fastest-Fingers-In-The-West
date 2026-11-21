@@ -167,6 +167,26 @@ Yello Billy set:
 - **Art:** all four frames generated and approved 2026-11-21
   (`src/game/assets/gen/greg-goose-{idle,aim,hit,down}.png`).
 
+### Goon: Dandy Dan — The Dandy Showboat (interview complete 2026-11-21)
+
+- **Name:** Dandy Dan.
+- **Build:** Slim, posed, theatrical. Chin raised, hand on hip, hat-tipping
+  greeting.
+- **Head:** Wide black gambler hat with one large peacock feather. Waxed
+  mustache connected to a pointed Van Dyke beard.
+- **Colors:** Plain purple vest, white shirt, hot pink sash, plain black
+  trousers, simple black boots with small spurs, small red rose in the
+  lapel.
+- **Personality:** ladies' man. Flirts while he draws; the charm is the
+  menace.
+- **Aim pose:** Revolver pointed at the player, winking, blowing a kiss.
+- **Hit animation:** Theatrical stagger, hand clutching his chest over the
+  rose, head thrown back in dramatic shock.
+- **Defeat:** Dramatic faint, sinking backward, back of hand pressed to his
+  forehead, hat flying off, rose tumbling after.
+- **Art:** all four frames generated and approved 2026-11-21
+  (`src/game/assets/gen/dandy-dan-{idle,aim,hit,down}.png`).
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
@@ -210,7 +230,7 @@ then the five representatives). Status per character:
 - [x] Goon 2: Three-Finger Rye (The Drunk, art approved)
 - [x] Goon 3: Sam Snakeeyes (The Card Sharp, art approved)
 - [x] Goon 4: Greg Goose (The Trapper, art approved)
-- [ ] Goon 5: Bull Nolan
+- [x] Goon 5: Dandy Dan (The Dandy Showboat, art approved)
 - [ ] Black Bart
 - [ ] Representative 1
 - [ ] Representative 2
