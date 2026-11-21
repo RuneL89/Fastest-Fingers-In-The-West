@@ -104,3 +104,11 @@ alpha thresholded at 128. Output: `src/game/assets/gen/*-nes.png`.
 Integration: `DuelScene.preload()` loads the 5 images; outlaw 0 (Cactus Jack)
 uses gen art with idle/aim during the race, hit on losing an exchange, down
 on defeat. Other outlaws and the code background remain as fallback.
+
+## Phase -1 accepted art (2026-11-22)
+
+- `bg-main-street.png` — duel background v2, approved (very low-detail standard set)
+- `poster-yello-billy.png` — WANTED poster v2, approved (head-only black neutral mugshot standard set)
+- `map-tombwood-creek.png` — town map v2, approved (icon-readable low-detail standard set)
+
+Regeneration notes: v1 background and map rejected as too detailed; v1 poster (full-body, colored, nervous) rejected in favor of head-only neutral black mugshot.

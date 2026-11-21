@@ -21,6 +21,7 @@ Six fighters, style sheets approved, key frames are character references not fin
 Six duel backgrounds, one per location: Main Street, Saloon, Gambling Den, Gold Mine, Church, Town Hall.
 
 - Same pixel style, but **simpler and lower-contrast than fighters** so the duelist always reads against them: muted earth tones, sun-bleached boards, dusty shadows.
+- **Detail rule (approved with Main Street v2): backgrounds stay very low-detail and clean** — flat solid sky, simple large building shapes, minimal shading or texture, tiny simple NPC faces. The first detailed Main Street was rejected as too busy; the simpler version is the standard for all six backgrounds.
 - One state per location, with **swappable NPC states in-engine**: same background, tormented citizens (cowering, peeking) before victory, celebrating citizens after. No second painted background per location.
 - Each background shows its torment per WORLD.md (overturned tables, scattered cards, idle miners' tools, etc.), and the torment details are part of the painted scene: after victory they stay — life snaps back via the NPCs, not a repaint.
 - Backgrounds are 270×300 full-view scenes; the fighter stands center-frame on a ground line, Wild Gunman-style.
@@ -31,11 +32,11 @@ A small set of **4 base bodies** (e.g. round matron, lanky old-timer, sturdy lab
 
 ## WANTED Posters
 
-Six dedicated **mugshot posters**, traditional Wild West wanted-poster style: aged paper, "WANTED" woodtype, reward amount, the goon's mugshot. Same pipeline, quantized. Used on the map (tormented state) and as the goon's portrait in duel intros.
+Six dedicated **mugshot posters**, traditional Wild West wanted-poster style: aged paper, "WANTED" woodtype, reward amount, the goon's mugshot. **Approved standard (Billy v2): head and shoulders only, rendered in black ink silhouette-style, completely neutral deadpan expression.** Same pipeline, quantized. Used on the map (tormented state) and as the goon's portrait in duel intros.
 
 ## The Map
 
-One full **top-down map image** of Tombwood Creek (AI-generated, style-locked, quantized): town hall center, mine top-right tunnel-in-hillside, buildings as simplified top-down versions of the duel backgrounds, dirt roads connecting everything, cactuses and mesas outside the town edge. Posters, the lock, and freed representatives are overlaid sprites in-engine.
+One full **top-down map image** of Tombwood Creek (AI-generated, style-locked, quantized). **Approved v2 standard: very low-detail, icon-readable buildings** — small square buildings with tiny identifying icons (beer mug for the saloon, card for the den, cross for the church), town hall center, mine tunnel in a small hill, thin dirt roads, minimal decoration, flat sand color. Posters, the lock, and freed representatives are overlaid sprites in-engine.
 
 ## Prologue & Closing Slides
 
@@ -70,7 +71,11 @@ No photorealism, no anime influence, no dark gritty revisionism, no gore beyond 
 ## Asset Checklist (v1)
 
 - [x] 6 fighter style-sheet sets (done, approved)
-- [ ] 6 duel backgrounds
+- [x] Main Street background (approved 2026-11-22)
+- [x] Yello Billy WANTED poster (approved 2026-11-22)
+- [x] Town map (approved 2026-11-22)
+- [ ] 3 remaining goon posters + Bart poster
+- [ ] 5 remaining duel backgrounds
 - [ ] NPC base bodies ×4 + palette swaps + pose swaps
 - [ ] 5 named representative sprites + Mayor (paused with interviews)
 - [ ] 6 WANTED mugshot posters
