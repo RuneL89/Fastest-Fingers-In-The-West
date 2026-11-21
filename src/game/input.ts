@@ -62,7 +62,9 @@ export class GameInput {
     const v = this.hidden.value;
     this.hidden.value = "";
     for (const ch of v) {
-      if (/[a-zA-Z]/.test(ch)) this.onChar?.(ch.toLowerCase());
+      // Soft keyboards deliver Space/Enter as characters, not keydown events.
+      if (ch === " " || ch === "\n") this.onControl?.("start");
+      else if (/[a-zA-Z]/.test(ch)) this.onChar?.(ch.toLowerCase());
     }
   };
 

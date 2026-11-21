@@ -6,6 +6,7 @@ import Phaser from "phaser";
 import { VIEW, PAL } from "../config";
 import { PROLOGUE } from "../data/dialogue";
 import { TextBox } from "../ui/TextBox";
+import { GameInput } from "../input";
 
 const FONT = '"Press Start 2P", monospace';
 const CX = VIEW.W / 2;
@@ -14,10 +15,15 @@ export class PrologueScene extends Phaser.Scene {
   private box!: TextBox;
   private index = 0;
   private skipText!: Phaser.GameObjects.Text;
+  private keys!: GameInput;
 
   constructor() { super("prologue"); }
 
   create(): void {
+    this.keys = new GameInput();
+    this.keys.attach();
+    this.keys.onControl = (k) => { if (k === "start") this.box.advance(); };
+    this.events.once("shutdown", () => this.keys.dispose());
     this.cameras.main.setBackgroundColor("#241608");
     this.add.text(CX, 60, "TOMBWOOD CREEK", {
       fontFamily: FONT, fontSize: "16px", color: PAL.gold,

@@ -5,12 +5,14 @@ import Phaser from "phaser";
 import { VIEW, PAL } from "../config";
 import { run, resetRun, type Difficulty } from "../state";
 import { AudioSystem } from "../audio";
+import { GameInput } from "../input";
 
 const FONT = '"Press Start 2P", monospace';
 const CX = VIEW.W / 2;
 
 export class TitleScene extends Phaser.Scene {
   private audio!: AudioSystem;
+  private keys!: GameInput;
   private options: Phaser.GameObjects.Text[] = [];
   private selected = 1;
   private blink = 0;
@@ -18,6 +20,12 @@ export class TitleScene extends Phaser.Scene {
   constructor() { super("title"); }
 
   create(): void {
+    this.keys = new GameInput();
+    this.keys.attach();
+    this.keys.onControl = (k) => {
+      if (k === "start") this.start((["easy", "normal", "hard"] as Difficulty[])[this.selected]);
+    };
+    this.events.once("shutdown", () => this.keys.dispose());
     this.audio = new AudioSystem();
     this.audio.setMood("title");
     this.cameras.main.setBackgroundColor("#1a0f06");
@@ -54,7 +62,7 @@ export class TitleScene extends Phaser.Scene {
     this.add.text(CX, 266, "TYPE THE WORD FIRST.\nWRONG KEYS JUST WASTE TIME.", {
       fontFamily: FONT, fontSize: "8px", color: PAL.grayLight, align: "center",
     }).setOrigin(0.5);
-    this.add.text(CX, 292, "UP/DOWN + SPACE, OR TAP", {
+    this.add.text(CX, 292, "UP/DOWN + SPACE, OR TAP\nON PHONE: TAP, THEN SPACE", {
       fontFamily: FONT, fontSize: "8px", color: PAL.gray,
     }).setOrigin(0.5);
 
