@@ -123,6 +123,29 @@ Yello Billy set:
   later, per player decision), citizens' relief line (representative
   interview).
 
+### Goon: Sam Snakeeyes — The Card Sharp (interview complete 2026-11-21)
+
+- **Name:** Sam Snakeeyes (gambler + sneaky/shifty).
+- **Build:** Medium build, average height. Slightly hunched sly posture.
+- **Head:** Tall black hat with two playing cards tucked in the band. Thin
+  long waxed mustache. Heavy-lidded eyes glancing sideways, crooked sneaky
+  look, no smile.
+- **Colors:** Black long duster over white shirt and dark red vest, dark
+  pants, gold watch chain.
+- **Prop:** None in hand. Bolo tie with two dice as the slide. The two hat
+  cards are the signature. (Ace up the sleeve and rabbit's foot were cut in
+  art review.)
+- **Aim pose:** One hand only, casual confident grip, eyes narrowed, revolver
+  pointed at the player.
+- **Hit animation:** Long coat bursts open, cloud of playing cards explodes
+  out of him mid-stagger.
+- **Defeat:** Lands face down, hat fallen off beside him, scattered cards,
+  revolver dropped.
+- **Personality (dialogue, deferred batch):** all gambling focused, smooth
+  talker.
+- **Art:** all four frames generated and approved 2026-11-21
+  (`src/game/assets/gen/sam-snakeeyes-{idle,aim,hit,down}.png`).
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
@@ -164,7 +187,7 @@ then the five representatives). Status per character:
 
 - [x] Goon 1: Yello Billy (The Coward, art approved)
 - [x] Goon 2: Three-Finger Rye (The Drunk, art approved)
-- [ ] Goon 3: Tumbleweed Tom
+- [x] Goon 3: Sam Snakeeyes (The Card Sharp, art approved)
 - [ ] Goon 4: Slim Sawyer
 - [ ] Goon 5: Bull Nolan
 - [ ] Black Bart
