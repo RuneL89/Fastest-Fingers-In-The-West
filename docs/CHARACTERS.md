@@ -103,6 +103,26 @@ Yello Billy set:
 - **OPEN (deferred):** sheriff's three option tones for his duel
   (NARRATIVE.md), citizens' relief line (representative interview).
 
+### Goon: Three-Finger Rye — The Drunk (interview complete 2026-11-21)
+
+- **Name:** Three-Finger Rye.
+- **Build:** Short, stocky, wide, heavy. Big bushy mustache connected to
+  sideburns.
+- **Head:** Small bowler hat with red band. Big round red nose. Belligerent
+  permanent grin.
+- **Colors:** Loud and clashing on purpose: green-and-yellow plaid shirt,
+  bright red suspenders, brown patched pants.
+- **Prop:** Whiskey bottle with XXX label, in his fist even while drawing.
+- **Aim pose:** Body swaying to one side, one eye squinted shut to focus,
+  revolver pointed at the player, bottle still in the off hand.
+- **Defeat:** Falls flat on his back, bowler hat over his face, bottle
+  spilled beside him, stars circling.
+- **Art:** all four frames generated and approved 2026-11-21
+  (`src/game/assets/gen/three-finger-rye-{idle,aim,hit,down}.png`).
+- **OPEN (deferred):** his duel dialogue line (batch with all goon dialogue
+  later, per player decision), citizens' relief line (representative
+  interview).
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
@@ -142,8 +162,8 @@ backstories, no family ties).
 Each identity below is filled by a dedicated interview (goons 1-5, then Bart,
 then the five representatives). Status per character:
 
-- [ ] Goon 1: Cactus Jack
-- [ ] Goon 2: Whiskey Wade
+- [x] Goon 1: Yello Billy (The Coward, art approved)
+- [x] Goon 2: Three-Finger Rye (The Drunk, art approved)
 - [ ] Goon 3: Tumbleweed Tom
 - [ ] Goon 4: Slim Sawyer
 - [ ] Goon 5: Bull Nolan
