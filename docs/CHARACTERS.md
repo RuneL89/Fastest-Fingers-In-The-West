@@ -72,6 +72,10 @@ Yello Billy set:
 - Generated at 1024x1280 on a transparent background; pose frames
   (idle/aim/hit/down) are generated from the accepted idle anchor as
   reference so identity stays locked across the set.
+- **These key frames are character style sheets, not final animation
+  frames.** They define how each character looks. Individual frames may be
+  regenerated during duel development if an animation needs to be smoother
+  or read better in motion.
 - Aim frame points the weapon at the viewer (the player), foreshortened
   barrel.
 - Palette per character is quantized to the game NES palette on import; raw
@@ -187,6 +191,35 @@ Yello Billy set:
 - **Art:** all four frames generated and approved 2026-11-21
   (`src/game/assets/gen/dandy-dan-{idle,aim,hit,down}.png`).
 
+### Black Bart — The Leader (interview complete 2026-11-21)
+
+- **Name:** Black Bart (locked).
+- **Scale:** 1.5x goon sprite height (~132 px on the 270x300 view). He
+  dominates the duel frame.
+- **Build:** Big, burly, massively muscled. Black hair, full black beard,
+  big black eyebrows.
+- **Head:** A full real buffalo head with horns and eyes worn over his head
+  like a helmet. His face glares out from under it. The head lifts on hits
+  and comes off on defeat.
+- **Clothes:** Cowboy first: faded red shirt, fur vest, leather gun belt
+  with buffalo-skull buckle, denim trousers, spurred cowboy boots.
+- **Weapon:** Big sawed-off shotgun, held two-handed.
+- **Aim pose:** Angry, both hands on the shotgun, barrels foreshortened
+  straight at the player, leaning in.
+- **Hit animation:** Shot in the stomach, doubled over, one hand clutching
+  his belly, buffalo head tilting back to reveal the pained grimace
+  underneath. Must survive being shown up to 4 times without looking
+  defeated. (Style-sheet frame; may be regenerated for motion.)
+- **Defeat:** Very bloody and dramatic in-engine: flat on his back, arms
+  spread, shotgun dropped, the buffalo head off beside him, real face slack.
+  The head coming off is the story's final image. (Raw frame generated
+  bloodless; the game's pixel-blood burst supplies the gore.)
+- **Mechanics:** normal enemy with 5 lives (RULES.md). No foreshadowing,
+  no mid-fight story beats (STORY.md). Extra rage frame: deferred, maybe
+  later.
+- **Art:** all four frames generated and approved 2026-11-21
+  (`src/game/assets/gen/black-bart-{idle,aim,hit,down}.png`).
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
@@ -231,7 +264,7 @@ then the five representatives). Status per character:
 - [x] Goon 3: Sam Snakeeyes (The Card Sharp, art approved)
 - [x] Goon 4: Greg Goose (The Trapper, art approved)
 - [x] Goon 5: Dandy Dan (The Dandy Showboat, art approved)
-- [ ] Black Bart
+- [x] Black Bart (Leader, art approved)
 - [ ] Representative 1
 - [ ] Representative 2
 - [ ] Representative 3
