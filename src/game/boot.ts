@@ -3,7 +3,11 @@
  * Phaser renders into the existing #game-canvas, FIT-scaled, crisp pixel art.
  */
 import Phaser from "phaser";
+import { TitleScene } from "./scenes/TitleScene";
+import { PrologueScene } from "./scenes/PrologueScene";
+import { MapScene } from "./scenes/MapScene";
 import { DuelScene } from "./scenes/DuelScene";
+import { GameOverScene } from "./scenes/GameOverScene";
 import { VIEW } from "./config";
 
 let game: Phaser.Game | null = null;
@@ -38,7 +42,7 @@ export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
       width: VIEW.W,
       height: VIEW.H,
     },
-    scene: [DuelScene],
+    scene: [TitleScene, PrologueScene, MapScene, DuelScene, GameOverScene],
   });
 }
 

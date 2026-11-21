@@ -1,29 +1,28 @@
 /**
- * DuelScene.ts — the whole game: title → intro → tension → race → resolve,
- * outlaw ladder, 3 lives per side (player lives carry across outlaws),
- * game over / victory / endless, pause, procedural effects.
+ * DuelScene.ts — one complete duel, data-driven per fighter/location.
+ * Flow: goon opening → 3 sheriff options → goon closing → race exchanges
+ * (shared phrase, both sides fill, first to finish fires) → victory
+ * (representative thank-you) or game over. No pause (RULES.md).
  */
 import Phaser from "phaser";
+import { VIEW, PAL } from "../config";
+import { FIGHTERS, type FighterDef } from "../data/fighters";
+import { locationById, type LocationDef } from "../data/locations";
+import { DIALOGUE } from "../data/dialogue";
+import { phraseFor } from "../data/phrases";
+import { run, DIFFICULTY_WPM } from "../state";
 import { AudioSystem } from "../audio";
-import { GameInput, type ControlKey } from "../input";
-import { storage } from "../storage";
-import {
-  VIEW, PAL, LADDER, LIVES, BEST_KEY, TIMING, ENDLESS_WPM_STEP,
-  wordForOutlaw, type OutlawDef,
-} from "../config";
-import { buildBackground, buildOutlawTextures, buildProps } from "../pixelart";
-import genIdleUrl from "../assets/gen/cactus-jack-idle-nes.png";
-import genAimUrl from "../assets/gen/cactus-jack-aim-nes.png";
-import genHitUrl from "../assets/gen/cactus-jack-hit-nes.png";
-import genDownUrl from "../assets/gen/cactus-jack-down-nes.png";
-import genStreetUrl from "../assets/gen/main-street-nes.png";
-
-type Phase =
-  | "title" | "intro" | "tension" | "race" | "resolve"
-  | "outlawdown" | "playerhit" | "gameover" | "victory";
+import { GameInput } from "../input";
+import { TextBox } from "../ui/TextBox";
+import { loadAssets } from "./preload";
+import { buildProps } from "../pixelart";
 
 const FONT = '"Press Start 2P", monospace';
 const CX = VIEW.W / 2;
+
+type Phase =
+  | "opening" | "options" | "closing" | "tension" | "race"
+  | "resolve" | "victory" | "done";
 
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
@@ -40,287 +39,213 @@ export class DuelScene extends Phaser.Scene {
   private keys!: GameInput;
   private rng = mulberry32(Date.now());
 
-  private phase: Phase = "title";
-  private phaseT = 0;
-  private paused = false;
-  private playerWonExchange = true;
+  private loc!: LocationDef;
+  private fighter!: FighterDef;
 
-  private outlawIndex = 0;
-  private endlessCycle = 0;
-  private playerLives = LIVES;
-  private outlawLives = LIVES;
-  private bounty = 0;
-  private best = 0;
+  private phase: Phase = "opening";
+  private phaseT = 0;
+  private playerWonExchange = true;
 
   private word = "";
   private typed = 0;
   private aiChars = 0;
   private aiTimer = 0;
+  private outlawLives = 2;
+  private flinchT = 0;
+  private selectedOption = 0;
 
-  // scene objects
   private outlaw!: Phaser.GameObjects.Image;
-  private outlawHat!: Phaser.GameObjects.Image;
-  private flashFx!: Phaser.GameObjects.Image;
-  private playerHat!: Phaser.GameObjects.Image;
-  private vulture!: Phaser.GameObjects.Image;
-  private tumbleweed!: Phaser.GameObjects.Image;
-  private blood: Array<{ img: Phaser.GameObjects.Image; vx: number; vy: number; life: number }> = [];
-
-  private hudPlayerHats: Phaser.GameObjects.Image[] = [];
-  private hudOutlawHats: Phaser.GameObjects.Image[] = [];
-  private hudBar!: Phaser.GameObjects.Rectangle;
+  private npcs: Phaser.GameObjects.Image[] = [];
+  private rep!: Phaser.GameObjects.Image;
+  private box!: TextBox;
+  private optionTexts: Phaser.GameObjects.Text[] = [];
+  private optionsPanel?: Phaser.GameObjects.Rectangle;
   private wordBg!: Phaser.GameObjects.Rectangle;
-  private hudName!: Phaser.GameObjects.Text;
-  private hudBounty!: Phaser.GameObjects.Text;
-  private hudMute!: Phaser.GameObjects.Text;
-  private hudPause!: Phaser.GameObjects.Text;
   private wordFull!: Phaser.GameObjects.Text;
   private wordTyped!: Phaser.GameObjects.Text;
+  private hudName!: Phaser.GameObjects.Text;
+  private hudLives!: Phaser.GameObjects.Text;
+  private hudGoonLives!: Phaser.GameObjects.Text;
   private banner!: Phaser.GameObjects.Text;
-  private bannerSub!: Phaser.GameObjects.Text;
+  private flashFx!: Phaser.GameObjects.Rectangle;
 
-  private titleGroup!: Phaser.GameObjects.Container;
-  private pauseGroup!: Phaser.GameObjects.Container;
-  private endGroup!: Phaser.GameObjects.Container;
-  private endTitle!: Phaser.GameObjects.Text;
-  private endLines!: Phaser.GameObjects.Text;
-  private pauseSound!: Phaser.GameObjects.Text;
-  private titleStart!: Phaser.GameObjects.Text;
-  private titleBest!: Phaser.GameObjects.Text;
+  constructor() { super("duel"); }
 
-  constructor() {
-    super("duel");
+  init(data: { locationId?: string }): void {
+    this.loc = locationById(data.locationId ?? "main-street");
+    this.fighter = FIGHTERS[this.loc.fighterId];
   }
 
-  private get def(): OutlawDef {
-    return LADDER[this.outlawIndex];
-  }
-
-  private get effectiveWpm(): number {
-    return this.def.wpm + this.endlessCycle * ENDLESS_WPM_STEP;
-  }
-
-  preload(): void {
-    this.load.image("gen-cj-idle", genIdleUrl);
-    this.load.image("gen-cj-aim", genAimUrl);
-    this.load.image("gen-cj-hit", genHitUrl);
-    this.load.image("gen-cj-down", genDownUrl);
-    this.load.image("gen-street", genStreetUrl);
-  }
-
-  /** Use AI art for outlaw 0 (Cactus Jack PoC); other outlaws stay code-drawn. */
-  private get genArt(): boolean {
-    return this.outlawIndex === 0 && this.textures.exists("gen-cj-idle");
-  }
-
-  private outlawTex(pose: string): string {
-    return this.genArt ? `gen-cj-${pose}` : `outlaw-${this.outlawIndex}-${pose}`;
-  }
-
-  private fitOutlaw(): void {
-    if (this.genArt) {
-      // match the code sprite's on-screen height (44px grid * scale 2)
-      this.outlaw.setScale(88 / this.outlaw.height);
-    } else {
-      this.outlaw.setScale(1);
-    }
-  }
+  preload(): void { loadAssets(this); }
 
   create(): void {
-    buildBackground(this);
-    buildProps(this);
-    LADDER.forEach((d, i) => buildOutlawTextures(this, d, i));
+    buildProps(this); // life-hat, blood pixels, flash textures
     this.audio = new AudioSystem();
     this.keys = new GameInput();
     this.keys.attach();
     this.keys.onChar = (c) => this.onChar(c);
-    this.keys.onControl = (k) => this.onControl(k);
-    this.keys.typingActive = () => this.phase === "race" && !this.paused;
-    this.best = storage.get<number>(BEST_KEY, 0);
+    this.keys.typingActive = () => this.phase === "race";
+    this.outlawLives = this.fighter.lives;
 
-    if (this.textures.exists("gen-street")) {
-      this.add.image(0, 0, "gen-street").setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
-    } else {
-      this.add.image(0, 0, "bg").setOrigin(0, 0);
-    }
+    this.add.image(0, 0, this.loc.bgKey).setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
 
-    // outlaw + his removable hat
-    this.outlaw = this.add.image(CX, 236, "outlaw-0-idle").setOrigin(0.5, 1);
-    this.outlawHat = this.add.image(CX, 236 - 84, "hat-0").setOrigin(0.5, 1).setVisible(false);
-    this.flashFx = this.add.image(CX + 40, 178, "flash").setVisible(false);
+    // background townsfolk: worried during the duel, flinch on shots, happy after
+    const npcKeys = ["npc-townman", "npc-matron"];
+    const npcX = [34, VIEW.W - 34];
+    npcKeys.forEach((key, i) => {
+      const img = this.add.image(npcX[i], 252, key).setOrigin(0.5, 1);
+      img.setScale(56 / img.height);
+      this.npcs.push(img);
+    });
 
-    this.playerHat = this.add.image(-30, 272, "player-hat").setVisible(false);
-    this.vulture = this.add.image(-40, 40, "vulture-0").setVisible(false);
-    this.tumbleweed = this.add.image(-40, 262, "tumbleweed").setVisible(false);
+    this.outlaw = this.add.image(CX, 236, `${this.fighter.id}-idle`).setOrigin(0.5, 1);
+    this.fitOutlaw();
 
-    for (let i = 0; i < 40; i++) {
-      const img = this.add.image(0, 0, i % 3 === 0 ? "blood-px-dark" : "blood-px").setVisible(false);
-      this.blood.push({ img, vx: 0, vy: 0, life: 0 });
-    }
+    this.rep = this.add.image(CX + 52, 250, `${this.loc.repKey}-happy`)
+      .setOrigin(0.5, 1).setVisible(false);
+
+    this.flashFx = this.add.rectangle(CX, VIEW.H / 2, VIEW.W, VIEW.H, 0xd82800, 0).setDepth(90);
 
     // HUD
-    this.hudBar = this.add.rectangle(CX, 13, VIEW.W, 26, 0x000000, 0.45);
-    for (let i = 0; i < LIVES; i++) {
-      this.hudPlayerHats.push(this.add.image(12 + i * 20, 12, "life-hat").setOrigin(0, 0.5));
-      this.hudOutlawHats.push(this.add.image(VIEW.W - 12 - i * 20, 12, "life-hat").setOrigin(1, 0.5));
-    }
-    this.hudName = this.add.text(CX, 12, "", { fontFamily: FONT, fontSize: "8px", color: PAL.cream }).setOrigin(0.5);
-    this.hudBounty = this.add.text(CX, 290, "", { fontFamily: FONT, fontSize: "8px", color: PAL.brownDark }).setOrigin(0.5);
-    this.hudMute = this.add.text(VIEW.W - 6, 290, "", { fontFamily: FONT, fontSize: "8px", color: PAL.brownDark }).setOrigin(1, 0.5);
-    this.hudPause = this.add.text(6, 290, "II", { fontFamily: FONT, fontSize: "8px", color: PAL.brownDark }).setOrigin(0, 0.5)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.onControl("pause"));
+    this.add.rectangle(CX, 11, VIEW.W, 22, 0x000000, 0.45);
+    this.hudName = this.add.text(CX, 11, this.fighter.name, {
+      fontFamily: FONT, fontSize: "8px", color: PAL.cream,
+    }).setOrigin(0.5);
+    this.hudLives = this.add.text(6, 11, "", {
+      fontFamily: FONT, fontSize: "8px", color: PAL.white,
+    }).setOrigin(0, 0.5);
+    this.hudGoonLives = this.add.text(VIEW.W - 6, 11, "", {
+      fontFamily: FONT, fontSize: "8px", color: PAL.orange,
+    }).setOrigin(1, 0.5);
 
-    // word display: dark strip so the word reads against any sky
     this.wordBg = this.add.rectangle(CX, 62, VIEW.W, 30, 0x000000, 0.82).setVisible(false);
     const wordStyle = { fontFamily: FONT, fontSize: "16px" };
     this.wordFull = this.add.text(CX, 62, "", { ...wordStyle, color: PAL.gray }).setOrigin(0, 0.5);
     this.wordTyped = this.add.text(CX, 62, "", { ...wordStyle, color: PAL.white }).setOrigin(0, 0.5);
-    this.banner = this.add.text(CX, 120, "", { fontFamily: FONT, fontSize: "16px", color: PAL.white, stroke: PAL.black, strokeThickness: 4 }).setOrigin(0.5);
-    this.bannerSub = this.add.text(CX, 146, "", { fontFamily: FONT, fontSize: "8px", color: PAL.cream, stroke: PAL.black, strokeThickness: 3 }).setOrigin(0.5);
+    this.banner = this.add.text(CX, 120, "", {
+      fontFamily: FONT, fontSize: "12px", color: PAL.white,
+      stroke: PAL.black, strokeThickness: 4,
+    }).setOrigin(0.5);
 
-    this.buildTitle();
-    this.buildPause();
-    this.buildEnd();
+    this.box = new TextBox(this);
+    this.box.onAdvance = () => this.onDialogueAdvance();
+    this.input.on("pointerdown", () => {
+      if (this.phase !== "options") this.box.advance();
+    });
+    this.input.keyboard!.on("keydown-SPACE", () => {
+      if (this.phase === "options") this.chooseOption(this.selectedOption);
+      else this.box.advance();
+    });
+    this.input.keyboard!.on("keydown-ENTER", () => {
+      if (this.phase === "options") this.chooseOption(this.selectedOption);
+      else this.box.advance();
+    });
+    this.input.keyboard!.on("keydown-UP", () => {
+      if (this.phase === "options") { this.selectedOption = (this.selectedOption + 2) % 3; this.refreshOptions(); }
+    });
+    this.input.keyboard!.on("keydown-DOWN", () => {
+      if (this.phase === "options") { this.selectedOption = (this.selectedOption + 1) % 3; this.refreshOptions(); }
+    });
+    this.input.keyboard!.on("keydown-ONE", () => { if (this.phase === "options") this.chooseOption(0); });
+    this.input.keyboard!.on("keydown-TWO", () => { if (this.phase === "options") this.chooseOption(1); });
+    this.input.keyboard!.on("keydown-THREE", () => { if (this.phase === "options") this.chooseOption(2); });
 
-    this.input.on("pointerdown", () => this.onTap());
     this.events.once("shutdown", () => {
       this.keys.dispose();
       this.audio.dispose();
     });
 
-    this.enterTitle();
-    window.__GAME_READY__ = true;
+    this.refreshHud();
+    this.audio.setMood("duel");
+    this.box.say(this.fighter.name, DIALOGUE[this.fighter.id].opening, this.fighter.color);
+
     window.__duel = () => ({
       phase: this.phase,
-      paused: this.paused,
+      paused: false,
       word: this.word,
       typed: this.typed,
-      playerLives: this.playerLives,
+      playerLives: run.playerLives,
       outlawLives: this.outlawLives,
-      outlawIndex: this.outlawIndex,
-      bounty: this.bounty,
-      endlessCycle: this.endlessCycle,
+      outlawIndex: 0,
+      bounty: 0,
+      endlessCycle: 0,
       muted: this.audio.muted,
     });
   }
 
-  /* ---------------- screens ---------------- */
+  /* ---------------- dialogue flow ---------------- */
 
-  private buildTitle(): void {
-    const g = this.add.container(0, 0);
-    const t1 = this.add.text(CX, 66, "FASTEST", { fontFamily: FONT, fontSize: "24px", color: PAL.gold, stroke: PAL.brownDark, strokeThickness: 5 }).setOrigin(0.5);
-    const t2 = this.add.text(CX, 96, "FINGERS", { fontFamily: FONT, fontSize: "24px", color: PAL.gold, stroke: PAL.brownDark, strokeThickness: 5 }).setOrigin(0.5);
-    const t3 = this.add.text(CX, 126, "IN THE WEST", { fontFamily: FONT, fontSize: "12px", color: PAL.white, stroke: PAL.brownDark, strokeThickness: 4 }).setOrigin(0.5);
-    this.titleStart = this.add.text(CX, 216, "PRESS SPACE / TAP", { fontFamily: FONT, fontSize: "8px", color: PAL.white, stroke: PAL.black, strokeThickness: 3 }).setOrigin(0.5);
-    this.titleBest = this.add.text(CX, 236, "", { fontFamily: FONT, fontSize: "8px", color: PAL.cream, stroke: PAL.black, strokeThickness: 3 }).setOrigin(0.5);
-    const hint = this.add.text(CX, 258, "TYPE THE WORD FIRST.\nWRONG KEYS JUST WASTE TIME.", { fontFamily: FONT, fontSize: "8px", color: PAL.brownDark, align: "center" }).setOrigin(0.5);
-    g.add([t1, t2, t3, this.titleStart, this.titleBest, hint]);
-    this.titleGroup = g;
+  private onDialogueAdvance(): void {
+    if (this.phase === "opening") {
+      this.phase = "options";
+      this.selectedOption = 0;
+      this.buildOptions();
+    } else if (this.phase === "closing") {
+      this.startExchange();
+    } else if (this.phase === "victory") {
+      this.phase = "done";
+      run.freed.add(this.loc.id);
+      this.scene.start("map");
+    }
   }
 
-  private buildPause(): void {
-    const g = this.add.container(0, 0).setVisible(false);
-    const shade = this.add.rectangle(CX, VIEW.H / 2, VIEW.W, VIEW.H, 0x000000, 0.72);
-    const title = this.add.text(CX, 92, "HOLD YOUR FIRE", { fontFamily: FONT, fontSize: "12px", color: PAL.gold }).setOrigin(0.5);
-    const mk = (y: number, label: string, action: ControlKey) =>
-      this.add.text(CX, y, label, { fontFamily: FONT, fontSize: "8px", color: PAL.white }).setOrigin(0.5)
-        .setInteractive({ useHandCursor: true })
-        .on("pointerdown", () => this.onControl(action));
-    const resume = mk(130, "ESC  RESUME", "pause");
-    const restart = mk(152, "R    RESTART RUN", "restart");
-    this.pauseSound = mk(174, "M    SOUND: ON", "mute");
-    const reset = mk(196, "X    RESET BEST BOUNTY", "resetBest");
-    g.add([shade, title, resume, restart, this.pauseSound, reset]);
-    this.pauseGroup = g;
+  private buildOptions(): void {
+    this.box.say(null, "WHAT DO YOU SAY, SHERIFF?");
+    const dlg = DIALOGUE[this.fighter.id];
+    this.optionsPanel = this.add.rectangle(CX, 164, VIEW.W - 16, 88, 0x000000, 0.85)
+      .setStrokeStyle(2, 0xac7c00).setDepth(50);
+    dlg.options.forEach((opt, i) => {
+      const t = this.add.text(12, 130 + i * 26, "", {
+        fontFamily: FONT, fontSize: "8px", color: PAL.white,
+        wordWrap: { width: VIEW.W - 24 }, lineSpacing: 4,
+      }).setDepth(51).setInteractive({ useHandCursor: true })
+        .on("pointerover", () => { this.selectedOption = i; this.refreshOptions(); })
+        .on("pointerdown", () => this.chooseOption(i));
+      t.setText(`${i + 1}. ${opt.tone}: "${opt.line}"`);
+      this.optionTexts.push(t);
+    });
+    this.refreshOptions();
   }
 
-  private buildEnd(): void {
-    const g = this.add.container(0, 0).setVisible(false);
-    const shade = this.add.rectangle(CX, VIEW.H / 2, VIEW.W, VIEW.H, 0x000000, 0.6);
-    const poster = this.add.rectangle(CX, 150, 216, 190, 0xf8d878).setStrokeStyle(4, 0x503000);
-    this.endTitle = this.add.text(CX, 74, "WANTED", { fontFamily: FONT, fontSize: "20px", color: PAL.darkRed }).setOrigin(0.5);
-    this.endLines = this.add.text(CX, 166, "", { fontFamily: FONT, fontSize: "8px", color: PAL.brownDark, align: "center", lineSpacing: 8 }).setOrigin(0.5);
-    g.add([shade, poster, this.endTitle, this.endLines]);
-    this.endGroup = g;
+  private refreshOptions(): void {
+    this.optionTexts.forEach((t, i) => { if (t.active) t.setColor(i === this.selectedOption ? PAL.gold : PAL.white); });
   }
 
-  /* ---------------- flow ---------------- */
-
-  private enterTitle(): void {
-    this.phase = "title";
-    this.paused = false;
-    this.titleGroup.setVisible(true);
-    this.pauseGroup.setVisible(false);
-    this.endGroup.setVisible(false);
-    this.outlaw.setVisible(false);
-    this.clearWord();
-    this.banner.setText("");
-    this.bannerSub.setText("");
-    this.hudName.setText("");
-    this.hudBounty.setText("");
-    this.hudPlayerHats.forEach((h) => h.setVisible(false));
-    this.hudOutlawHats.forEach((h) => h.setVisible(false));
-    this.hudPause.setVisible(false);
-    this.hudBar.setVisible(false);
-    this.titleBest.setText(`BEST BOUNTY $${this.best}`);
-    this.audio.setMood("title");
-  }
-
-  private startRun(endless = false): void {
-    this.endlessCycle = endless ? 1 : 0;
-    this.outlawIndex = 0;
-    this.playerLives = LIVES;
-    this.bounty = 0;
-    this.titleGroup.setVisible(false);
-    this.endGroup.setVisible(false);
-    this.pauseGroup.setVisible(false);
-    this.paused = false;
-    this.hudPlayerHats.forEach((h) => h.setVisible(true));
-    this.hudOutlawHats.forEach((h) => h.setVisible(true));
-    this.hudPause.setVisible(true);
-    this.hudBar.setVisible(true);
+  private chooseOption(i: number): void {
+    const dlg = DIALOGUE[this.fighter.id];
     this.audio.sfx("ui");
-    this.startOutlaw();
+    this.optionTexts.forEach((t) => t.destroy());
+    this.optionTexts = [];
+    this.optionsPanel?.destroy();
+    this.optionsPanel = undefined;
+    this.phase = "closing";
+    this.box.say(this.fighter.name, dlg.closing, this.fighter.color);
   }
 
-  private startOutlaw(): void {
-    this.outlawLives = LIVES;
-    this.phase = "intro";
-    this.phaseT = TIMING.intro;
-    this.resetOutlawSprite();
-    this.clearWord();
-    this.hudName.setText(this.def.name);
-    this.banner.setText(`DUEL ${this.endlessCycle > 0 ? "E" : ""}${this.outlawIndex + 1}`);
-    this.bannerSub.setText(`${this.def.name}  $${this.def.bounty}`);
-    this.refreshHud();
-    this.audio.setMood("duel");
-  }
+  /* ---------------- race ---------------- */
 
   private startExchange(): void {
+    this.box.setVisible(false);
     this.phase = "tension";
-    this.phaseT = TIMING.tension;
+    this.phaseT = 1.2;
     this.word = "";
     this.typed = 0;
     this.aiChars = 0;
     this.clearWord();
     this.banner.setText("");
-    this.bannerSub.setText("");
-    this.resetOutlawSprite();
-    this.playerHat.setVisible(false);
-    this.cameras.main.resetFX();
+    this.outlaw.setTexture(`${this.fighter.id}-idle`);
+    this.fitOutlaw();
     this.audio.setMood("tension");
   }
 
   private revealWord(): void {
     this.phase = "race";
-    this.word = wordForOutlaw(this.outlawIndex, this.rng).toUpperCase();
+    this.word = phraseFor(this.fighter.id, this.rng).toUpperCase();
     this.typed = 0;
     this.aiChars = 0;
     this.aiTimer = this.aiBaseDelay() * 0.9;
-    const display = this.word;
     this.wordBg.setVisible(true);
-    this.wordFull.setText(display);
+    this.wordFull.setText(this.word);
     this.wordFull.setX(CX - this.wordFull.width / 2);
     this.wordTyped.setX(this.wordFull.x).setText("");
     this.audio.sfx("reveal");
@@ -328,122 +253,73 @@ export class DuelScene extends Phaser.Scene {
   }
 
   private aiBaseDelay(): number {
-    return 60 / (this.effectiveWpm * 5);
+    return 60 / (DIFFICULTY_WPM[run.difficulty] * 5);
   }
 
   private resolveExchange(playerWon: boolean): void {
+    this.clearWord();
     this.phase = "resolve";
-    this.phaseT = TIMING.resolve;
+    this.phaseT = 1.15;
     this.playerWonExchange = playerWon;
     this.audio.sfx("shot");
     this.cameras.main.shake(140, 0.012);
-    this.cameras.main.flash(70, 255, 248, 220);
+    this.npcs.forEach((n) => n.setTexture(`${n.texture.key}-flinch`));
     if (playerWon) {
       this.outlawLives--;
-      this.burstBlood(this.outlaw.x, this.outlaw.y - 56);
-      if (this.genArt) {
-        // AI frames: recoil pose, hat flies inside the art itself
-        this.outlaw.setTexture("gen-cj-hit");
-        this.fitOutlaw();
-        this.tweens.add({ targets: this.outlaw, y: this.outlaw.y + 10, duration: 300, yoyo: true });
-      } else {
-        this.outlaw.setTexture(`outlaw-${this.outlawIndex}-aim`);
-        this.outlawHat.setVisible(true).setPosition(this.outlaw.x, this.outlaw.y - 84).setRotation(0);
-        this.tweens.add({ targets: this.outlawHat, y: this.outlawHat.y - 40, angle: 200, duration: 700 });
-        this.tweens.add({ targets: this.outlaw, angle: 88, y: this.outlaw.y + 26, duration: 650, ease: "Bounce.easeOut" });
-      }
+      this.outlaw.setTexture(`${this.fighter.id}-hit`);
+      this.fitOutlaw();
+      this.cameras.main.flash(70, 255, 248, 220);
       this.audio.sfx("thud");
     } else {
-      this.playerLives--;
-      this.flashFx.setVisible(true);
-      this.time.delayedCall(90, () => this.flashFx.setVisible(false));
-      this.burstBlood(CX - 40, 250);
+      run.playerLives--;
+      this.outlaw.setTexture(`${this.fighter.id}-fire`);
+      this.fitOutlaw();
+      this.flashFx.setAlpha(0.45);
+      this.tweens.add({ targets: this.flashFx, alpha: 0, duration: 350 });
     }
     this.refreshHud();
   }
 
   private afterResolve(): void {
+    this.npcs.forEach((n) => n.setTexture(n.texture.key.replace("-flinch", "")));
     if (this.playerWonExchange) {
       if (this.outlawLives <= 0) {
-        this.phase = "outlawdown";
-        this.phaseT = TIMING.outlawDown;
-        if (this.genArt) {
-          this.outlaw.setTexture("gen-cj-down");
-          this.fitOutlaw();
-        }
-        this.bounty += this.def.bounty;
-        this.banner.setText("OUTLAW DOWN");
-        this.bannerSub.setText(`BOUNTY +$${this.def.bounty}`);
-        this.audio.sfx("win");
-        this.refreshHud();
+        this.victory();
       } else {
-        this.startExchangeAfter(TIMING.betweenExchanges);
+        this.startExchange();
       }
     } else {
-      if (this.playerLives <= 0) {
-        this.gameOver();
+      if (run.playerLives <= 0) {
+        this.scene.start("gameover");
       } else {
-        this.phase = "playerhit";
-        this.phaseT = TIMING.playerHit;
         this.banner.setText("HIT!");
-        this.bannerSub.setText(`${this.playerLives} ${this.playerLives === 1 ? "LIFE" : "LIVES"} LEFT`);
-        this.playerHat.setVisible(true).setPosition(-20, 268).setRotation(0);
-        this.tweens.add({ targets: this.playerHat, x: 70, angle: 360, duration: 900 });
-        this.audio.sfx("lose");
+        this.time.delayedCall(900, () => this.startExchange());
+        this.phaseT = 999; // wait for the delayedCall
       }
     }
-  }
-
-  private startExchangeAfter(delay: number): void {
-    this.phase = "tension";
-    this.phaseT = delay;
-    this.clearWord();
-    this.resetOutlawSprite();
-    this.audio.setMood("tension");
-  }
-
-  private gameOver(): void {
-    this.phase = "gameover";
-    this.saveBest();
-    this.endTitle.setText("WANTED");
-    this.endLines.setText(
-      `DEAD OR ALIVE\n\nYOUR BOUNTY\n$${this.bounty}\n\nBEST $${this.best}\n\nSPACE/TAP: NEW RUN`,
-    );
-    this.endGroup.setVisible(true);
-    this.audio.sfx("lose");
-    this.audio.setMood("title");
   }
 
   private victory(): void {
+    this.box.setVisible(true);
     this.phase = "victory";
-    this.saveBest();
-    this.endTitle.setText("YEEHAW!");
-    this.endLines.setText(
-      `RAILROAD REACHED\nALL OUTLAWS DOWN\n\nBOUNTY $${this.bounty}\nBEST $${this.best}\n\nENTER/TAP: ENDLESS\nSPACE: NEW RUN`,
-    );
-    this.endGroup.setVisible(true);
-    this.audio.sfx("fanfare");
-    this.audio.setMood("title");
-  }
-
-  private saveBest(): void {
-    if (this.bounty > this.best) {
-      this.best = this.bounty;
-      storage.set(BEST_KEY, this.best);
+    this.clearWord();
+    this.banner.setText("");
+    this.outlaw.setTexture(`${this.fighter.id}-down`);
+    this.fitOutlaw();
+    this.audio.sfx("win");
+    this.npcs.forEach((n) => n.setTexture(`${n.texture.key}-happy`));
+    if (this.loc.repKey) {
+      this.rep.setVisible(true);
+      this.rep.setScale(64 / this.rep.height);
     }
+    this.audio.setMood("title");
+    this.box.say("STEW POTTS", this.loc.thankYou, PAL.greenLight);
   }
 
   /* ---------------- helpers ---------------- */
 
-  private resetOutlawSprite(): void {
-    this.outlaw.setVisible(true);
-    this.outlaw.setTexture(this.outlawTex("idle"));
-    this.fitOutlaw();
-    this.outlaw.setPosition(CX, 236).setAngle(0).setAlpha(1);
-    this.outlawHat.setVisible(false);
-    this.tweens.killTweensOf(this.outlaw);
-    this.tweens.killTweensOf(this.outlawHat);
-    for (const b of this.blood) { b.life = 0; b.img.setVisible(false); }
+  private fitOutlaw(): void {
+    this.outlaw.setScale((88 * this.fighter.scale) / this.outlaw.height);
   }
 
   private clearWord(): void {
@@ -453,154 +329,64 @@ export class DuelScene extends Phaser.Scene {
   }
 
   private refreshHud(): void {
-    this.hudPlayerHats.forEach((h, i) => h.setTexture(i < this.playerLives ? "life-hat" : "life-hat-lost"));
-    this.hudOutlawHats.forEach((h, i) => h.setTexture(i < this.outlawLives ? "life-hat" : "life-hat-lost"));
-    this.hudBounty.setText(`BOUNTY $${this.bounty}`);
-    this.hudMute.setText(this.audio.muted ? "MUTED" : "");
-  }
-
-  private burstBlood(x: number, y: number): void {
-    let n = 0;
-    for (const b of this.blood) {
-      if (b.life > 0) continue;
-      b.life = 0.5 + this.rng() * 0.3;
-      b.img.setVisible(true).setPosition(x, y).setAlpha(1);
-      b.vx = (this.rng() * 2 - 1) * 130;
-      b.vy = -40 - this.rng() * 110;
-      if (++n >= 26) break;
-    }
+    this.hudLives.setText("★".repeat(run.playerLives) + "☆".repeat(3 - run.playerLives));
+    this.hudGoonLives.setText("★".repeat(this.outlawLives) + "☆".repeat(this.fighter.lives - this.outlawLives));
   }
 
   private onChar(c: string): void {
-    if (this.paused || this.phase !== "race") return;
-    // Lenient rule: a wrong key does nothing at all. Only time is lost.
+    if (this.phase !== "race") return;
     if (c !== this.word[this.typed].toLowerCase()) return;
     this.typed++;
     this.audio.sfx("click");
     this.wordTyped.setText(this.word.substring(0, this.typed));
+    // per-keystroke flinch (visual only)
+    this.outlaw.setTexture(`${this.fighter.id}-flinch`);
+    this.fitOutlaw();
+    this.flinchT = 0.12;
     if (this.typed >= this.word.length) this.resolveExchange(true);
-  }
-
-  private onControl(k: ControlKey): void {
-    if (k === "mute") {
-      this.audio.toggleMute();
-      this.pauseSound.setText(`M    SOUND: ${this.audio.muted ? "OFF" : "ON"}`);
-      this.refreshHud();
-      return;
-    }
-    if (k === "pause") {
-      if (this.phase === "title" || this.phase === "gameover" || this.phase === "victory") return;
-      this.paused = !this.paused;
-      this.pauseGroup.setVisible(this.paused);
-      this.audio.sfx("ui");
-      return;
-    }
-    if (this.paused) {
-      if (k === "restart") this.startRun(this.endlessCycle > 0);
-      if (k === "resetBest") {
-        this.best = 0;
-        storage.set(BEST_KEY, 0);
-        this.titleBest.setText("BEST BOUNTY $0");
-        this.audio.sfx("ui");
-      }
-      return;
-    }
-    if (k === "start") {
-      if (this.phase === "title") this.startRun();
-      else if (this.phase === "gameover" || this.phase === "victory") this.startRun();
-    } else if (k === "endless") {
-      if (this.phase === "victory") this.startRun(true);
-    }
-  }
-
-  private onTap(): void {
-    if (this.paused) return; // pause menu items handle their own taps
-    if (this.phase === "title") this.startRun();
-    else if (this.phase === "gameover") this.startRun();
-    else if (this.phase === "victory") this.startRun(true);
   }
 
   /* ---------------- update ---------------- */
 
-  update(time: number, delta: number): void {
+  update(_time: number, delta: number): void {
     const dt = Math.min(delta, 100) / 1000;
-    if (!this.paused) {
-      this.phaseT -= dt;
-      switch (this.phase) {
-        case "intro":
-          if (this.phaseT <= 0) this.startExchange();
-          break;
-        case "tension":
-          if (this.phaseT <= 0) this.revealWord();
-          break;
-        case "race": {
-          // opponent types on his own clock
-          this.aiTimer -= dt;
-          while (this.aiTimer <= 0 && this.aiChars < this.word.length) {
-            this.aiChars++;
-            const jitter = this.def.jitter ?? 0.45;
-            let d = this.aiBaseDelay() * (1 + (this.rng() * 2 - 1) * jitter);
-            if (this.def.stumble && this.rng() < this.def.stumble) d += 0.45 + this.rng() * 0.5;
-            this.aiTimer += Math.max(0.03, d);
-          }
+    this.box.update(_time, delta);
+    this.phaseT -= dt;
+
+    if (this.flinchT > 0) {
+      this.flinchT -= dt;
+      if (this.flinchT <= 0 && this.phase === "race") {
+        this.outlaw.setTexture(`${this.fighter.id}-aim`);
+        this.fitOutlaw();
+      }
+    }
+
+    switch (this.phase) {
+      case "tension":
+        if (this.phaseT <= 0) this.revealWord();
+        break;
+      case "race": {
+        this.aiTimer -= dt;
+        while (this.aiTimer <= 0 && this.aiChars < this.word.length) {
+          this.aiChars++;
+          const d = this.aiBaseDelay() * (1 + (this.rng() * 2 - 1) * 0.45);
+          this.aiTimer += Math.max(0.03, d);
+        }
+        if (this.flinchT <= 0) {
           const p = this.aiChars / Math.max(1, this.word.length);
-          const pose = this.genArt ? (p < 0.5 ? "idle" : "aim") : p < 0.34 ? "idle" : p < 0.86 ? "draw" : "aim";
-          const key = this.outlawTex(pose);
+          const pose = p < 0.34 ? "idle" : p < 0.86 ? "draw" : "aim";
+          const key = `${this.fighter.id}-${pose}`;
           if (this.outlaw.texture.key !== key) {
             this.outlaw.setTexture(key);
             this.fitOutlaw();
           }
-          if (this.aiChars >= this.word.length && this.phase === "race") this.resolveExchange(false);
-          break;
         }
-        case "resolve":
-          if (this.phaseT <= 0) this.afterResolve();
-          break;
-        case "outlawdown":
-          if (this.phaseT <= 0) {
-            if (this.outlawIndex >= LADDER.length - 1 && this.endlessCycle === 0) {
-              this.victory();
-            } else {
-              this.outlawIndex++;
-              if (this.outlawIndex >= LADDER.length) {
-                this.outlawIndex = 0;
-                this.endlessCycle++;
-              }
-              this.startOutlaw();
-            }
-          }
-          break;
-        case "playerhit":
-          if (this.phaseT <= 0) this.startExchangeAfter(TIMING.tension);
-          break;
+        if (this.aiChars >= this.word.length && this.phase === "race") this.resolveExchange(false);
+        break;
       }
-
-      // blood particles
-      for (const b of this.blood) {
-        if (b.life <= 0) continue;
-        b.life -= dt;
-        b.vy += 520 * dt;
-        b.img.x += b.vx * dt;
-        b.img.y += b.vy * dt;
-        b.img.setAlpha(Math.min(1, b.life * 3));
-        if (b.life <= 0) b.img.setVisible(false);
-      }
-
-      // ambient life: vulture drifts across, tumbleweed rolls
-      const t = time / 1000;
-      const vcycle = t % 26;
-      this.vulture.setVisible(vcycle < 9);
-      if (vcycle < 9) {
-        this.vulture.setPosition(-30 + vcycle * 36, 34 + Math.sin(vcycle * 1.4) * 6);
-        this.vulture.setTexture(Math.floor(t * 4) % 2 === 0 ? "vulture-0" : "vulture-1");
-      }
-      const wcycle = (t + 9) % 21;
-      this.tumbleweed.setVisible(wcycle < 7 && this.phase !== "race");
-      if (wcycle < 7) {
-        this.tumbleweed.setPosition(-20 + wcycle * 48, 262 + Math.abs(Math.sin(wcycle * 5)) * -8);
-        this.tumbleweed.setAngle(wcycle * 260);
-      }
-      this.titleStart.setAlpha(Math.floor(t * 2) % 2 === 0 ? 1 : 0.25);
+      case "resolve":
+        if (this.phaseT <= 0) this.afterResolve();
+        break;
     }
   }
 }

@@ -17,6 +17,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __duel?: () => DuelProbe;
+    __map?: () => { freed: string[]; unlocked: boolean; lives: number };
   }
 }
 
