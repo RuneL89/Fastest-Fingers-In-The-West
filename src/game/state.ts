@@ -6,9 +6,9 @@ export type Difficulty = "easy" | "normal" | "hard";
 
 /** Goon typing speed (words per minute) by difficulty. */
 export const DIFFICULTY_WPM: Record<Difficulty, number> = {
-  easy: 30,
-  normal: 42,
-  hard: 58,
+  easy: 6,
+  normal: 9,
+  hard: 12,
 };
 
 export interface RunState {
