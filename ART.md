@@ -113,3 +113,5 @@ on defeat. Other outlaws and the code background remain as fallback.
 
 Regeneration notes: v1 background and map rejected as too detailed; v1 poster (full-body, colored, nervous) rejected in favor of head-only neutral black mugshot.
 - `npc-matron.png`, `npc-oldtimer.png`, `npc-laborer.png`, `npc-townman.png` — townsfolk base bodies v2, approved 2026-11-22 (very low detail standard; kid body dropped per user: no children)
+- `npc-*-flinch.png`, `npc-*-happy.png` (4 bases), `rep-mainstreet-flinch.png`, `rep-mainstreet-happy.png` — NPC state frames, approved 2026-11-22
+- `yello-billy-draw.png`, `yello-billy-flinch.png`, `yello-billy-fire.png` — Billy motion frames (full set: idle/draw/aim/flinch/fire/hit/down), approved 2026-11-22
