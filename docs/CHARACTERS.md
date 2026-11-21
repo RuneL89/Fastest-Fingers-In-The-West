@@ -51,6 +51,30 @@ interviews:
 | The Trapper | new | Bear-fur coat, wide furry silhouette |
 | The Dandy Showboat | Don Flamenco | Feather, garish colors, preening |
 
+## Goon identities
+
+### Goon: Yello Billy — The Coward (interview complete 2026-11-21)
+
+- **Name:** Yello Billy (play on yellow-belly).
+- **Build:** Tall, lanky, thin, comically bow-legged, thin legs.
+- **Head:** Oversized flat-brim hat, too large for his head. Big wide eyes
+  shifting nervously side to side in idle. No bandana; the scared face is
+  the point.
+- **Colors:** Muted, washed-out drab (beige, faded gray). A man who would
+  rather not be seen.
+- **Prop:** None. The shaking two-handed grip on a normal revolver is the
+  whole image.
+- **Draw pose:** Both hands, shaking, holding the revolver like it's a snake.
+- **Per-keystroke animation:** Yes (all goons): a tiny flinch/recoil frame
+  on each correct letter the player types. Visual only, zero mechanical
+  effect.
+- **Defeat:** His legs give out and he lands hard on his butt; hat tips
+  forward over his eyes.
+- **Voice:** Stammering fake confidence. Sample line: "I-i-I'll show you
+  l-l-lawman."
+- **OPEN (deferred):** sheriff's three option tones for his duel
+  (NARRATIVE.md), citizens' relief line (representative interview).
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
