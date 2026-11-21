@@ -26,7 +26,7 @@ export const FIGHTERS: Record<string, FighterDef> = {
   "three-finger-rye": {
     id: "three-finger-rye", name: "THREE-FINGER RYE", color: "#F8B800",
     lives: 2, scale: 1, bounty: 500,
-    frames: ["idle", "aim", "hit", "down"],
+    frames: ["idle", "draw", "aim", "flinch", "fire", "hit", "down"],
   },
   "sam-snakeeyes": {
     id: "sam-snakeeyes", name: "SAM SNAKEEYES", color: "#58F898",

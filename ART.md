@@ -115,3 +115,53 @@ Regeneration notes: v1 background and map rejected as too detailed; v1 poster (f
 - `npc-matron.png`, `npc-oldtimer.png`, `npc-laborer.png`, `npc-townman.png` — townsfolk base bodies v2, approved 2026-11-22 (very low detail standard; kid body dropped per user: no children)
 - `npc-*-flinch.png`, `npc-*-happy.png` (4 bases), `rep-mainstreet-flinch.png`, `rep-mainstreet-happy.png` — NPC state frames, approved 2026-11-22
 - `yello-billy-draw.png`, `yello-billy-flinch.png`, `yello-billy-fire.png` — Billy motion frames (full set: idle/draw/aim/flinch/fire/hit/down), approved 2026-11-22
+
+## Phase 1A accepted art and final prompts (2026-11-22)
+
+The saloon background, Rye's coherent seven-frame animation set, and the revised barkeeper are approved. The raw PNGs in `src/game/assets/gen/` are the canonical runtime assets. Experimental `*-nes.png` variants for this set were removed. The first-pass saloon workflow in `scripts/generate-art.py` is retired and disabled so it cannot overwrite approved files.
+
+Generation ran through the Kimi image gateway because Leonardo access was unavailable. Final replacement frames used approved images as visual references. The requirements below are the reusable final prompt record; they supersede the earlier first-pass saloon prompts.
+
+### Shared Rye identity
+
+```
+Drunken Wild West outlaw gunslinger, black flat-brim cowboy hat with red band
+and small yellow feather, big red nose, wild brown beard and mustache, green and
+yellow checkered shirt with red suspenders, baggy patched brown pants, grey boots
+with yellow spurs, whiskey bottle in his left hand. Full-body 16-bit NES pixel-art
+sprite, crisp square pixels, bold flat colors, thick black outline, exaggerated
+readable silhouette, transparent background.
+```
+
+| Asset | Final prompt requirements and reference |
+|---|---|
+| `bg-saloon.png` | `8-bit pixel art Wild West saloon interior seen from a duel position, wooden bar counter with bottles along the left wall, overturned round tables and smashed whiskey bottles scattered on a wooden plank floor, saloon swinging doors centered in the back wall, warm brown and amber tones, very low detail, flat solid colors, limited NES color palette, crisp square pixels, NES video game background, no people, no characters.` |
+| `three-finger-rye-idle.png` | Use the approved Rye identity reference. `Standing idle facing the viewer, revolver completely holstered on his right hip, left hand raising the whiskey bottle in a drunken toast, relaxed unsteady stance.` The earlier raised-gun idle was rejected. |
+| `three-finger-rye-draw.png` | Use the approved replacement idle as reference. `Right hand pulling the revolver from its holster in a clearly readable mid-draw pose, revolver angled downward, bottle retained in the left hand, tense stance.` |
+| `three-finger-rye-aim.png` | Existing approved frame retained. Rye aims his right-hand revolver toward the viewer and retains the bottle in his left hand. |
+| `three-finger-rye-flinch.png` | First saloon-batch frame retained. `Sudden recoil flinch, eyes squeezed shut, head jerking back, shoulders hunched, same clothing and handedness.` |
+| `three-finger-rye-fire.png` | Use the approved Rye frames as reference. `Right arm fully extended toward the viewer, revolver firing directly at the viewer with a bright muzzle flash, forceful recoil, bottle retained in the left hand.` The rejected near-head gun pose was discarded. |
+| `three-finger-rye-hit.png` | Existing approved frame retained. |
+| `three-finger-rye-down.png` | Existing approved frame retained. |
+
+Approved live sequence: holstered idle → mid-draw → aim → flinch on correct player keys → extended-arm fire → hit → down. Verification confirmed that aim appears for at least one outlaw typing step before fire.
+
+### Unique barkeeper identity
+
+The first chunky barkeeper was rejected because he looked too much like Stew Potts. The approved identity is a slim, sly, nervous professional:
+
+```
+Wild West saloon barman, slim build, slicked-back dark hair, big round nose,
+thin handlebar mustache, black vest over white shirt with small burgundy bow tie,
+white towel draped over his left forearm, right hand polishing a glass mug with
+a cloth, sly nervous half-smile. Full-body 16-bit NES pixel-art sprite, crisp
+square pixels, flat solid colors, thick black outline, transparent background.
+```
+
+| Asset | Final prompt requirements and reference |
+|---|---|
+| `rep-saloon.png` | Use the unique barkeeper prompt above. Do not use Stew Potts as an identity reference. |
+| `rep-saloon-flinch.png` | Use the approved new barkeeper himself as reference. `Same slim barkeeper and clothing, cowering in fear, both hands over his head, eyes squeezed shut, towel retained.` |
+| `rep-saloon-happy.png` | Use the approved new barkeeper himself as reference. `Same slim barkeeper and clothing, jumping with joy, both arms raised high, huge open-mouth grin.` |
+
+For opaque first-pass sprite renders, only the contiguous backdrop was removed with border-seeded flood fill and color tolerance. Character interiors were preserved. Approved raw transparent PNGs are loaded directly by the game.

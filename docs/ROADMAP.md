@@ -45,16 +45,18 @@ The foundation everything else stands on. No new art needed (uses Phase -1 asset
 
 **Exit criteria:** from the map, through dialogue, through a real 2-life duel against Billy, to a freed Main Street and back. Fully playable.
 
-## Phase 1A — ART: Saloon Set (Three-Finger Rye)
+## Phase 1A — ART: Saloon Set (Three-Finger Rye) (COMPLETE 2026-11-22)
 
-1. Saloon duel background (low-detail standard; overturned tables, smashed bottles, scared patrons, barman pouring).
-2. Rye WANTED poster.
-3. Rye draw/flinch/fire frames (reference-locked to his approved style sheet).
-4. Representative interview (saloon barman) + sprite + happy/flinch states.
+1. Saloon duel background approved: wooden bar, swinging doors, overturned tables, and scattered bottles.
+2. Rye WANTED poster was already approved in Phase 0A.
+3. Full seven-frame Rye set approved after coherence revisions: holstered idle, mid-draw, aim, flinch, extended-arm fire, hit, and down. Handedness and revolver position remain consistent.
+4. Unique slim barkeeper approved with slicked-back dark hair, thin mustache, black vest, burgundy bow tie, forearm towel, and glass-polishing pose. Happy and flinch states use the same identity.
 
-## Phase 2 — DEV: Rye Duel
+Final prompt requirements and the canonical raw-PNG policy are recorded in `ART.md`.
 
-Repeat Phase 1 loop for Three-Finger Rye (Saloon). **Exit criteria:** two full duels playable.
+## Phase 2 — DEV: Rye Duel (COMPLETE 2026-11-22)
+
+The complete two-life saloon duel is playable, with Rye dialogue and phrase pool, saloon NPCs, letter-by-letter outlaw typing, the full live idle/draw/aim/fire sequence, barkeeper thank-you, and freed-saloon map state. Regression coverage includes both victories, game over/restart, loading, desktop and mobile keyboard input, and AI pacing.
 
 ## Phase 2A — ART: Gambling Den Set (Sam Snakeeyes)
 
@@ -93,15 +95,17 @@ Church background (Dan posing, women on pews, angry priest and men), poster, Dan
 
 **Exit criteria:** the game is complete start-to-finish in the browser.
 
-## Phase 6A — ART: Audio (not visual art, but produced before Phase 7)
+## Phase 6A — ART: Audio (OPTIONAL POLISH, not a v1 blocker)
 
-1. Duel music loop, Bart track (tenser), map banjo, title sting.
-2. Full SFX set per ART-DIRECTION (keystroke tick, wrong-key thud, flinch yelp, gunshots, life-lost sting, poster-tear jingle, victory fanfare).
+The user accepted the existing audio for v1 on 2026-11-22. Revisit this phase only if a later playtest justifies an audio upgrade.
 
-## Phase 7 — DEV: Presentation & Audio
+1. Optional duel music upgrade, Bart variation, map banjo, and title sting.
+2. Optional SFX expansion beyond the accepted set.
 
-1. Music + SFX integration.
-2. Effects: sheriff-hit red flash + shake, goon impact flash + smoke, victory gleam.
+## Phase 7 — DEV: Presentation Polish (OPTIONAL unless playtesting finds a defect)
+
+1. Music + SFX integration only if Phase 6A is reopened.
+2. Optional effects polish: sheriff-hit flash + shake, goon impact flash + smoke, victory gleam.
 
 ## Phase 8 — DEV: Android for the Clicks Communicator
 

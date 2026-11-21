@@ -1,4 +1,4 @@
-// Verify the outlaw progress bar fills gradually and the pace is playable.
+// Verify the actual outlaw word illuminates gradually at a playable pace.
 import { chromium } from "playwright";
 const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] });
 const page = await browser.newPage({ viewport: { width: 540, height: 640 } });
@@ -31,8 +31,9 @@ for (let i = 0; i < 8; i++) {
   await page.waitForTimeout(400);
 }
 await page.waitForFunction(() => window.__duel?.().phase === "race", null, { timeout: 15000 });
+const start = Date.now();
 
-// sample aiChars over time: bar should creep forward slowly
+// sample aiChars over time: the shared word should illuminate slowly
 const samples = [];
 for (let i = 0; i < 4; i++) {
   await page.waitForTimeout(1500);
@@ -47,7 +48,6 @@ for (let i = 0; i < 4; i++) {
 console.log("samples:", samples.map((s) => `${s.ai}/${s.len}`).join(" → "), "word:", samples[0].word);
 
 // how long until the outlaw finishes an exchange by itself?
-const start = Date.now();
 await page.waitForFunction(() => window.__duel?.().phase === "resolve" && window.__duel?.().aiChars > 0, null, { timeout: 60000 }).catch(() => {});
 const elapsed = (Date.now() - start) / 1000;
 const st = await page.evaluate(() => window.__duel());

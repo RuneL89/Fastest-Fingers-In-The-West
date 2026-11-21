@@ -7,16 +7,20 @@ export interface LocationDef {
   id: string;
   name: string;
   fighterId: string;
-  /** Normalized building position on the map image. */
+  /** Normalized freed-representative position outside the building. */
   mapX: number;
   mapY: number;
   /** Normalized WANTED-poster position beside the visible building. */
   posterX: number;
   posterY: number;
-  /** Duel background texture key (only Main Street exists in Phase 1). */
+  /** Duel background texture key. */
   bgKey: string;
-  /** Representative sprite texture base key (only Stew exists in Phase 1). */
+  /** Representative sprite texture base key. */
   repKey: string | null;
+  /** Speaker label for the freed representative's thank-you line. */
+  repName?: string;
+  /** Two background townsfolk texture base keys for this duel. */
+  npcs?: readonly [string, string];
   thankYou: string;
 }
 
@@ -24,13 +28,14 @@ export const LOCATIONS: LocationDef[] = [
   {
     id: "main-street", name: "MAIN STREET", fighterId: "yello-billy",
     mapX: 0.70, mapY: 0.70, posterX: 0.62, posterY: 0.70,
-    bgKey: "bg-main-street", repKey: "rep-mainstreet",
+    bgKey: "bg-main-street", repKey: "rep-mainstreet", repName: "STEW POTTS",
     thankYou: "Store's open again! First pickle's free, Sheriff.",
   },
   {
     id: "saloon", name: "THE SALOON", fighterId: "three-finger-rye",
-    mapX: 0.275, mapY: 0.175, posterX: 0.29, posterY: 0.275,
-    bgKey: "bg-saloon", repKey: null,
+    mapX: 0.29, mapY: 0.275, posterX: 0.29, posterY: 0.275,
+    bgKey: "bg-saloon", repKey: "rep-saloon", repName: "BARMAN",
+    npcs: ["npc-oldtimer", "npc-townman"],
     thankYou: "First round's on the house, Sheriff. The good stuff, this time.",
   },
   {

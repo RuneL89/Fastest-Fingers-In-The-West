@@ -124,7 +124,7 @@ export class DuelScene extends Phaser.Scene {
     this.add.image(0, 0, this.loc.bgKey).setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
 
     // background townsfolk: worried during the duel, flinch on shots, happy after
-    const npcKeys = ["npc-townman", "npc-matron"];
+    const npcKeys = this.loc.npcs ?? ["npc-townman", "npc-matron"];
     const npcX = [34, VIEW.W - 34];
     npcKeys.forEach((key, i) => {
       const img = this.add.image(npcX[i], 252, key).setOrigin(0.5, 1);
@@ -217,6 +217,7 @@ export class DuelScene extends Phaser.Scene {
       word: this.word,
       typed: this.typed,
       aiChars: this.aiChars,
+      outlawPose: this.outlaw.texture.key,
       playerLives: run.playerLives,
       outlawLives: this.outlawLives,
       outlawIndex: 0,
@@ -371,7 +372,7 @@ export class DuelScene extends Phaser.Scene {
       this.rep.setScale(64 / this.rep.height);
     }
     this.audio.setMood("title");
-    this.box.say("STEW POTTS", this.loc.thankYou, PAL.greenLight);
+    this.box.say(this.loc.repName ?? "TOWNSFOLK", this.loc.thankYou, PAL.greenLight);
   }
 
   /* ---------------- helpers ---------------- */
@@ -440,7 +441,9 @@ export class DuelScene extends Phaser.Scene {
         }
         if (this.flinchT <= 0) {
           const p = this.aiChars / Math.max(1, this.word.length);
-          const pose = p < 0.34 ? "idle" : p < 0.86 ? "draw" : "aim";
+          // Show the aim pose for at least one full AI step before firing,
+          // including on five-letter words; 0.86 skipped straight to fire.
+          const pose = p < 0.34 ? "idle" : p < 0.70 ? "draw" : "aim";
           const key = `${this.fighter.id}-${pose}`;
           if (this.outlaw.texture.key !== key) {
             this.outlaw.setTexture(key);

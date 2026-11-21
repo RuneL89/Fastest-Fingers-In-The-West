@@ -5,6 +5,7 @@
 import Phaser from "phaser";
 
 import bgMainStreet from "../assets/gen/bg-main-street.png";
+import bgSaloon from "../assets/gen/bg-saloon.png";
 import mapImg from "../assets/gen/map-tombwood-creek.png";
 
 import billyIdle from "../assets/gen/yello-billy-idle.png";
@@ -14,6 +15,14 @@ import billyFlinch from "../assets/gen/yello-billy-flinch.png";
 import billyFire from "../assets/gen/yello-billy-fire.png";
 import billyHit from "../assets/gen/yello-billy-hit.png";
 import billyDown from "../assets/gen/yello-billy-down.png";
+
+import ryeIdle from "../assets/gen/three-finger-rye-idle.png";
+import ryeDraw from "../assets/gen/three-finger-rye-draw.png";
+import ryeAim from "../assets/gen/three-finger-rye-aim.png";
+import ryeFlinch from "../assets/gen/three-finger-rye-flinch.png";
+import ryeFire from "../assets/gen/three-finger-rye-fire.png";
+import ryeHit from "../assets/gen/three-finger-rye-hit.png";
+import ryeDown from "../assets/gen/three-finger-rye-down.png";
 
 import posterBilly from "../assets/gen/poster-yello-billy.png";
 import posterRye from "../assets/gen/poster-three-finger-rye.png";
@@ -38,10 +47,14 @@ import npcTownmanHappy from "../assets/gen/npc-townman-happy.png";
 import repStew from "../assets/gen/rep-mainstreet.png";
 import repStewFlinch from "../assets/gen/rep-mainstreet-flinch.png";
 import repStewHappy from "../assets/gen/rep-mainstreet-happy.png";
+import repBarman from "../assets/gen/rep-saloon.png";
+import repBarmanFlinch from "../assets/gen/rep-saloon-flinch.png";
+import repBarmanHappy from "../assets/gen/rep-saloon-happy.png";
 
 export function loadAssets(scene: Phaser.Scene): void {
   const imgs: Record<string, string> = {
     "bg-main-street": bgMainStreet,
+    "bg-saloon": bgSaloon,
     "map": mapImg,
     "yello-billy-idle": billyIdle,
     "yello-billy-draw": billyDraw,
@@ -50,6 +63,13 @@ export function loadAssets(scene: Phaser.Scene): void {
     "yello-billy-fire": billyFire,
     "yello-billy-hit": billyHit,
     "yello-billy-down": billyDown,
+    "three-finger-rye-idle": ryeIdle,
+    "three-finger-rye-draw": ryeDraw,
+    "three-finger-rye-aim": ryeAim,
+    "three-finger-rye-flinch": ryeFlinch,
+    "three-finger-rye-fire": ryeFire,
+    "three-finger-rye-hit": ryeHit,
+    "three-finger-rye-down": ryeDown,
     "poster-yello-billy": posterBilly,
     "poster-three-finger-rye": posterRye,
     "poster-sam-snakeeyes": posterSnakeeyes,
@@ -71,6 +91,9 @@ export function loadAssets(scene: Phaser.Scene): void {
     "rep-mainstreet": repStew,
     "rep-mainstreet-flinch": repStewFlinch,
     "rep-mainstreet-happy": repStewHappy,
+    "rep-saloon": repBarman,
+    "rep-saloon-flinch": repBarmanFlinch,
+    "rep-saloon-happy": repBarmanHappy,
   };
   for (const [key, url] of Object.entries(imgs)) {
     if (!scene.textures.exists(key)) scene.load.image(key, url);

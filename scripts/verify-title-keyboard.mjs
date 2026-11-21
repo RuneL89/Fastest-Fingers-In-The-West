@@ -15,11 +15,20 @@ await page.locator("#mobile-type-input").pressSequentially(" ");
 await page.waitForTimeout(800);
 console.log("prologue visible:", await page.evaluate(() => !!document.querySelector("canvas")));
 await page.screenshot({ path: "/mnt/agents/output/app/verification-shots/m5-space-start.png" });
-// advance prologue with soft spaces until the map
+// advance prologue with soft spaces until the map. MapScene needs no typing
+// input, so the field can disappear while its artwork is still loading.
 for (let i = 0; i < 16; i++) {
   if (await page.evaluate(() => !!window.__map)) break;
-  await page.locator("#mobile-type-input").pressSequentially(" ");
-  await page.waitForTimeout(400);
+  const input = page.locator("#mobile-type-input");
+  if (await input.count()) {
+    await input.pressSequentially(" ");
+    await page.waitForTimeout(400);
+  } else {
+    await page.waitForFunction(() => !!window.__map, null, { timeout: 60000 });
+    break;
+  }
 }
-console.log("map reached via soft space:", await page.evaluate(() => !!window.__map));
+const mapReached = await page.evaluate(() => !!window.__map);
+console.log("map reached via soft space:", mapReached);
+if (!mapReached) throw new Error("Soft-keyboard spaces did not reach the map");
 await browser.close();

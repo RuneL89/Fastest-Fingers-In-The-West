@@ -24,6 +24,15 @@ export const DIALOGUE: Record<string, DuelDialogue> = {
     ],
     closing: "S-s-shoot first, ask questions later! Wait — n-no, wait...",
   },
+  "three-finger-rye": {
+    opening: "Hic! This here saloon's mine, Sheriff! Whiskey's free... for ME!",
+    options: [
+      { tone: "STERN", line: "The party's over, Rye. Out of my town." },
+      { tone: "DRY WIT", line: "You couldn't hit the floor if you fell on it." },
+      { tone: "GENTLE", line: "Put the bottle down. Nobody needs to die thirsty." },
+    ],
+    closing: "Hic! I'll... I'll show ya! Barkeep, hold my beer!",
+  },
 };
 
 export const PROLOGUE: readonly string[] = [

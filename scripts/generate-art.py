@@ -6,6 +6,10 @@ Usage:
 
 Steps: idle | poses | background | all (default)
 
+The retired `saloon` step is disabled. Its first-pass prompts remain below as
+history only; the approved Phase 1A prompt record is in ART.md. Batch generation
+must never overwrite approved canonical artwork.
+
 Flow (see ART.md for the full plan):
   1. idle       — Phoenix 1.0 text-to-image, the anchor frame for Cactus Jack
   2. poses      — image-to-image from the accepted idle frame (aim/hit/down)
@@ -41,7 +45,81 @@ IDENTITY = (
     "gun belt with holster"
 )
 
+RYE_IDENTITY = (
+    "drunken Wild West outlaw gunslinger, black flat-brim cowboy hat with red "
+    "band and small yellow feather, big red nose, wild brown beard and mustache, "
+    "green and yellow checkered shirt with red suspenders, baggy patched brown "
+    "pants held by a single gold buckle, grey boots with yellow spurs, whiskey "
+    "bottle in his left hand, revolver in his right hand"
+)
+REPS = (
+    "cheerful chunky Wild West townsfolk sprite, big head, friendly face, "
+    "16-bit pixel art, NES video game character, crisp square pixels, flat "
+    "solid colors, thick black outline, small sprite proportions, centered, "
+    "plain solid white background"
+)
+
 PROMPTS = {
+    # ---- Phase 1A: Saloon set (Three-Finger Rye) ----
+    "bg-saloon": {
+        "prompt": (
+            "8-bit pixel art Wild West saloon interior seen from a duel position, "
+            "wooden bar counter with bottles along the left wall, overturned round "
+            "tables and smashed whiskey bottles scattered on a wooden plank floor, "
+            "saloon swinging doors centered in the back wall, warm brown and amber "
+            "tones, very low detail, flat solid colors, limited NES color palette, "
+            "crisp square pixels, NES video game background, no people, no characters"
+        ),
+        "negative_prompt": "gradients, photograph, 3d render, text, watermark, people, characters, detailed, busy",
+        "width": 1024, "height": 1024,
+    },
+    "three-finger-rye-draw": {
+        "prompt": f"{RYE_IDENTITY}, right hand pulling the revolver from its holster mid-draw, tense stance, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "three-finger-rye-idle", "init_strength": 0.5,
+    },
+    "three-finger-rye-flinch": {
+        "prompt": f"{RYE_IDENTITY}, sudden recoil flinch, eyes squeezed shut, head jerking back, shoulders hunched, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "three-finger-rye-idle", "init_strength": 0.45,
+    },
+    "three-finger-rye-fire": {
+        "prompt": f"{RYE_IDENTITY}, right arm extended firing the revolver at the viewer, bright muzzle flash, {STYLE_POS}",
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "three-finger-rye-idle", "init_strength": 0.5,
+    },
+    "rep-saloon": {
+        "prompt": (
+            "Wild West saloon barman, slim build, slicked-back dark hair, big "
+            "round nose, thin handlebar mustache, black vest over white shirt "
+            "with small burgundy bow tie, white towel draped over his left "
+            f"forearm, right hand polishing a glass mug with a cloth, sly "
+            f"nervous half-smile, {REPS}"
+        ),
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "rep-mainstreet", "init_strength": 0.55,
+    },
+    "rep-saloon-flinch": {
+        "prompt": (
+            "Wild West saloon barman, slim build, slicked-back dark hair, big "
+            "round nose, thin handlebar mustache, black vest over white shirt "
+            "with small burgundy bow tie, cowering in fear, both hands over his "
+            f"head, eyes squeezed shut, {REPS}"
+        ),
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "rep-mainstreet", "init_strength": 0.55,
+    },
+    "rep-saloon-happy": {
+        "prompt": (
+            "Wild West saloon barman, slim build, slicked-back dark hair, big "
+            "round nose, thin handlebar mustache, black vest over white shirt "
+            "with small burgundy bow tie, jumping with joy, both arms raised "
+            f"high, huge open-mouth grin, {REPS}"
+        ),
+        "negative_prompt": NEG,
+        "width": 512, "height": 640, "init_from": "rep-mainstreet", "init_strength": 0.55,
+    },
+    # ---- PoC set (kept for reference) ----
     "cactus-jack-idle": {
         "prompt": f"{IDENTITY}, standing idle facing the viewer, {STYLE_POS}",
         "negative_prompt": NEG,
@@ -171,6 +249,11 @@ def quantize_to_nes(path, name, target_w):
 
 
 def run_step(key, step):
+    if step == "saloon":
+        sys.exit(
+            "The first-pass saloon workflow is retired. See ART.md for the "
+            "approved Phase 1A prompt record; never overwrite canonical art."
+        )
     if step in ("idle", "all"):
         name = "cactus-jack-idle"
         raw = generate(key, PROMPTS[name], name)
@@ -198,8 +281,8 @@ def main():
     if not key:
         sys.exit("Set LEONARDO_API_KEY")
     step = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if step not in ("idle", "poses", "background", "all"):
-        sys.exit("step must be: idle | poses | background | all")
+    if step not in ("idle", "poses", "background", "saloon", "all"):
+        sys.exit("step must be: idle | poses | background | saloon | all")
     run_step(key, step)
 
 

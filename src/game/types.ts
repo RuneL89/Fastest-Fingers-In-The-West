@@ -5,6 +5,8 @@ export interface DuelProbe {
   paused: boolean;
   word: string;
   typed: number;
+  aiChars: number;
+  outlawPose: string;
   playerLives: number;
   outlawLives: number;
   outlawIndex: number;
