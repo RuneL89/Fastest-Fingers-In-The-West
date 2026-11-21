@@ -53,6 +53,30 @@ interviews:
 
 ## Goon identities
 
+## Art style (locked from Yello Billy approval, 2026-11-21)
+
+All characters share this direction, proven by the Cactus Jack PoC and the
+Yello Billy set:
+
+- 16-bit pixel art sprite, NES video game character look, crisp square
+  pixels, flat solid colors, no gradients, no anti-aliasing.
+- Thick black outline around the whole figure, so the sprite reads on any
+  background at 44 px tall.
+- Full body, facing the viewer (duels are head-on, Wild Gunman style).
+- One exaggerated silhouette feature per character; everything else stays
+  proportional enough to ground the exaggeration.
+- Face is where personality lives: expressive eyes and mouth, readable at
+  sprite size. Bandanas only if the character concept demands it.
+- Color palette is per-character and meaningful (Yello Billy: muted and
+  washed out because he'd rather not be seen).
+- Generated at 1024x1280 on a transparent background; pose frames
+  (idle/aim/hit/down) are generated from the accepted idle anchor as
+  reference so identity stays locked across the set.
+- Aim frame points the weapon at the viewer (the player), foreshortened
+  barrel.
+- Palette per character is quantized to the game NES palette on import; raw
+  generations keep their natural palette for approval review.
+
 ### Goon: Yello Billy — The Coward (interview complete 2026-11-21)
 
 - **Name:** Yello Billy (play on yellow-belly).
@@ -72,6 +96,10 @@ interviews:
   forward over his eyes.
 - **Voice:** Stammering fake confidence. Sample line: "I-i-I'll show you
   l-l-lawman."
+- **Art:** all four frames generated and approved 2026-11-21
+  (`src/game/assets/gen/yello-billy-{idle,aim,hit,down}.png`). Down frame:
+  legs give out, lands on butt, revolver dropped, hat over eyes. Aim frame:
+  revolver pointed at the player.
 - **OPEN (deferred):** sheriff's three option tones for his duel
   (NARRATIVE.md), citizens' relief line (representative interview).
 
