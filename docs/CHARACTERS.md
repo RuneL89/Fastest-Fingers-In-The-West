@@ -23,6 +23,20 @@ Leader: **Black Bart** (name locked).
 
 ## Goons: identity rules
 
+**Design direction (locked): Punch-Out!!-style opponents.** Each goon is one
+exaggerated archetype, the way Mike Tyson's Punch-Out!! built its roster
+(Glass Joe the coward, Von Kaiser the military martinet, Don Flamenco the
+narcissist, King Hippo the glutton king, Bald Bull the raging brute). The
+formula to follow:
+
+- The name IS the gimmick (Glass Joe = fragile; Bald Bull = charges like a bull).
+- One visual exaggeration that silhouettes at 44 px.
+- The personality shows up in the fight itself, not just the intro: each
+  goon's typing behavior (jitter, hesitation, stumble patterns) is his
+  tell, the way Piston Honda bows or Don Flamenco dances.
+- Earnest tone rule (from STORY.md): archetypes must stay fond, never cruel.
+  Goons are menacing clowns, not mockeries of anyone real.
+
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
