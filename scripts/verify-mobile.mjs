@@ -2,7 +2,7 @@
 import { chromium } from "playwright";
 const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] });
 const ctx = await browser.newContext({
-  viewport: { width: 360, height: 640 },
+  viewport: { width: 1080, height: 2340 },
   hasTouch: true,
   isMobile: true,
 });

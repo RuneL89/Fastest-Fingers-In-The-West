@@ -20,6 +20,11 @@ import { buildProps } from "../pixelart";
 
 const FONT = '"Press Start 2P", monospace';
 const CX = VIEW.W / 2;
+// Character heights in the 270×300 view. The people need enough presence to
+// hold their own against the large painted background and 16px word display.
+const FIGHTER_TARGET_H = 112;
+const NPC_TARGET_H = 80;
+const REP_TARGET_H = 92;
 
 type Phase =
   | "opening" | "options" | "closing" | "tension" | "race"
@@ -128,7 +133,7 @@ export class DuelScene extends Phaser.Scene {
     const npcX = [34, VIEW.W - 34];
     npcKeys.forEach((key, i) => {
       const img = this.add.image(npcX[i], 252, key).setOrigin(0.5, 1);
-      img.setScale(56 / img.height);
+      img.setScale(NPC_TARGET_H / img.height);
       this.npcs.push(img);
     });
 
@@ -369,7 +374,7 @@ export class DuelScene extends Phaser.Scene {
     this.npcs.forEach((n) => n.setTexture(`${n.texture.key}-happy`));
     if (this.loc.repKey) {
       this.rep.setVisible(true);
-      this.rep.setScale(64 / this.rep.height);
+      this.rep.setScale(REP_TARGET_H / this.rep.height);
     }
     this.audio.setMood("title");
     this.box.say(this.loc.repName ?? "TOWNSFOLK", this.loc.thankYou, PAL.greenLight);
@@ -378,7 +383,7 @@ export class DuelScene extends Phaser.Scene {
   /* ---------------- helpers ---------------- */
 
   private fitOutlaw(): void {
-    this.outlaw.setScale((88 * this.fighter.scale) / this.outlaw.height);
+    this.outlaw.setScale((FIGHTER_TARGET_H * this.fighter.scale) / this.outlaw.height);
   }
 
   private clearWord(): void {

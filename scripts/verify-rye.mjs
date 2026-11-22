@@ -1,7 +1,7 @@
 // Phase 2 verification: full Three-Finger Rye duel in the saloon.
 import { chromium } from "playwright";
 const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] });
-const page = await browser.newPage({ viewport: { width: 540, height: 640 } });
+const page = await browser.newPage({ viewport: { width: 1080, height: 2340 } });
 const errors = [];
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 page.on("pageerror", (e) => errors.push(String(e)));
