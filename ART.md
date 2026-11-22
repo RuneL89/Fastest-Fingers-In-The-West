@@ -1,7 +1,6 @@
 # AI Art Pipeline — Fastest Fingers in the West
 
-Goal: Leonardo.ai-generated art for the game, quantized to the strict NES palette so it
-matches the code-drawn sprites pixel-for-pixel.
+Goal: produce coherent retro frontier artwork with an anchor-first generation workflow. Early sections record Leonardo and NES-palette experiments. The complete current game uses raw approved PNGs, as specified in the final runtime asset policy.
 
 ## Models (Leonardo, as of late 2026)
 
@@ -230,3 +229,66 @@ thick black outline, readable expressive pose, transparent background.
 | `rep-gambling-den-happy.png` | `Same elderly gambler and clothing, jumping for joy and raising his recovered gold pocket watch, delighted open-mouth smile.` | Approved Busted Ben base |
 
 Ben's victory line is: `My lucky watch! You're aces, Sheriff. Aces!`
+
+
+## Phase 3A Gold Mine art and final prompt record (2026-11-22)
+
+The Gold Mine set is complete and integrated. The runtime uses the raw PNGs in `src/game/assets/gen/`. Transparent sprites were trimmed using an alpha threshold of 128, with no NES quantization.
+
+Shared style: chunky hand-painted retro NES pixel art, bold dark contours, crisp pixel clusters, warm dusty earth colors, readable full-body silhouettes, transparent backgrounds for characters and props. Existing approved Goose idle and aim frames were the identity references.
+
+| Asset | Final prompt requirements | Reference |
+|---|---|---|
+| `bg-gold-mine.png` | Empty frontier gold-mine yard and dark timber-supported tunnel, rocky hillside, scattered tools and gold-bearing rock, warm dusty daylight, clear central floor for a duel, no people and no furniture sprites painted into the play lane. | Approved frontier background art |
+| `prop-mine-cart.png` | Separate weathered wooden and iron mine cart with four metal wheels and a load of gold-flecked rock, side three-quarter view, transparent background. | Approved Gold Mine background |
+| `prop-mining-crate.png` | Separate sturdy wooden mining crate with rough planks and metal braces, transparent background. | Approved Gold Mine background |
+| `greg-goose-draw.png` | Same broad Canadian trapper with raccoon cap, fur coat, red plaid shirt, green trousers, and hunting rifle. Readable mid-draw with the rifle lowered and body turning into the duel. | Approved Goose idle and aim |
+| `greg-goose-flinch.png` | Same identity, quick startled recoil with shoulders and fur reacting, rifle lowered harmlessly, no wound. | Approved Goose idle and aim |
+| `greg-goose-fire.png` | Same identity and rifle, aimed toward the viewer with a bright angular muzzle flash and braced stance. | Approved Goose aim |
+| `rep-gold-mine.png` | Dusty Pete, an elderly miner with grey beard, worn work clothes, helmet, and a worried pose. Full body, transparent background. | Gold Mine style reference |
+| `rep-gold-mine-flinch.png` | Same Dusty Pete cowering from a nearby shot with raised arms. | Approved Dusty Pete base |
+| `rep-gold-mine-happy.png` | Same Dusty Pete jumping with joy and raising his arms after the mine is freed. | Approved Dusty Pete base |
+
+Dusty Pete's victory line is: `You got the mine back! The whole town eats because of you!`
+
+## Phase 4A Church art and final prompt record (2026-11-22)
+
+The Church set is complete and integrated. It includes the chapel, a separate pew, Dan's missing motion frames, Father Merritt's three states, and a dedicated crying matron. The background remains empty so the engine can depth-sort the congregation and furniture.
+
+| Asset | Final prompt requirements | Reference |
+|---|---|---|
+| `bg-church.png` | Empty frontier chapel with timber beams, altar and cross at the back, sunset windows, scattered love-poem pages, and a wide unobstructed central aisle. Straight-on retro duel-game composition, no people or furniture in the center lane. | Approved frontier interior background |
+| `prop-church-pew.png` | Long wooden church bench with a tall backrest facing the viewer, warm timber, bold outline, transparent background. | Approved Church background |
+| `dandy-dan-draw.png` | Same slim theatrical Dan with peacock-feather hat, purple vest, pink sash, rose, moustache, and right-handed revolver. Flamboyant readable mid-draw. | Approved Dan idle and aim |
+| `dandy-dan-flinch.png` | Same identity recoiling theatrically while preserving costume, proportions, and handedness. | Approved Dan idle and aim |
+| `dandy-dan-fire.png` | Same Dan firing toward the viewer with a bright muzzle flash while preserving his blown-kiss showboat gesture. | Approved Dan idle and aim |
+| `rep-church.png` | Father Merritt, elderly silver-haired priest in a black cassock with Bible and cross necklace, angry at Dan's recital. Full body, transparent background. | Church style reference |
+| `rep-church-flinch.png` | Same priest shielding himself from a nearby gunshot while retaining Bible, cassock, and identity. | Approved Father Merritt base |
+| `rep-church-happy.png` | Same priest jumping joyfully with his Bible raised. | Approved Father Merritt base |
+| `npc-matron-crying.png` | Same approved bonneted matron in green dress and cream apron, crying after Dan's defeat. Preserve body proportions and identity. | Approved matron base |
+
+Father Merritt's victory line is: `Bless you, Sheriff. The sermon was getting unbearable.`
+
+The initial transparent pew trim used all nonzero alpha and included faint noise. Final processing uses `alpha >= 128` for bounds, producing a clean 1000 x 437 trimmed pew before runtime scaling.
+
+## Phase 5A Town Hall art and final prompt record (2026-11-22)
+
+The finale set is complete and integrated. Bart's existing idle, aim, hit, down, and poster remain canonical. Three motion frames were generated from his idle and aim references. The Mayor was created as a new named representative with matching tied, flinch, and freed-happy states.
+
+Shared Bart identity: enormous broad-shouldered outlaw with a shaggy brown buffalo hood, ivory horns, red eyes on the buffalo head, black beard, red rolled-sleeve coat, bullet belts, gold buffalo buckle, blue trousers, brown spurred boots, and the same double-barrel shotgun.
+
+| Asset | Final prompt requirements | Reference |
+|---|---|---|
+| `bg-town-hall.png` | `A completely empty small frontier town-hall interior, wide clear wooden floor, modest timber council chamber, raised mayor's desk and upholstered chair against the far back wall, empty wooden balconies on both sides, tall warm sunset windows, buffalo-skin rug only at the back edge, scattered documents, no people, no lettering, no flags, no UI. Straight-on theatrical NES duel background with an unobstructed central lane.` | Approved gambling-den background for rendering style |
+| `black-bart-draw.png` | Same Bart dropping his shotgun toward his right hip, knees bent, shoulders lowered, free hand flung outward, coat and buffalo fur swinging. Full figure, transparent background. | Approved Bart idle and aim |
+| `black-bart-flinch.png` | Same Bart recoiling from a close shot, shoulders raised, head turned away, one boot sliding back, shotgun lowered, other forearm shielding his face. No wound or blood. | Approved Bart idle and aim |
+| `black-bart-fire.png` | Same Bart and double-barrel shotgun based on the aim pose, braced boots, bright yellow-white muzzle starburst, orange core, and faint angular smoke. | Approved Bart idle and aim |
+| `rep-town-hall.png` | Mayor Hobart Plum, short stout elderly man with pink face, white moustache and sideburns, round spectacles, tall plum top hat, plum tailcoat, cream waistcoat, gold watch chain, and burgundy bow tie. Tied with natural-fiber rope to a high-backed wooden chair, indignant but uninjured. | Approved interior art for rendering weight |
+| `rep-town-hall-flinch.png` | Same tied Mayor recoiling at a gunshot, eyes squeezed shut, moustache bristling, top hat tipping, chair tipped onto two legs. Comical alarm, no injury. | Mayor identity specification |
+| `rep-town-hall-happy.png` | Same Mayor untied and standing, no chair or rope, jumping joyfully with both arms raised and his top hat held high. | Mayor identity specification |
+
+Mayor Hobart Plum's victory line is: `Tombwood Creek is free! You have my eternal gratitude, Sheriff.`
+
+## Current runtime asset policy
+
+The historical Leonardo and NES-quantization experiments above are retained as process history. The complete current game loads approved raw PNGs directly. Backgrounds are opaque edge-to-edge images. Transparent character and prop images are cropped to alpha-threshold bounds and scaled by Phaser. No `*-nes.png` variant is required or loaded by the current campaign.

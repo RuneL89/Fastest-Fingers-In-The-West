@@ -20,7 +20,7 @@ The world exists as the **overhead town map** plus the **duel backgrounds**. No 
 
 | Location | Goon | The Torment |
 |---|---|---|
-| **Main Street** | Yello Billy | He's sheepishly occupying the middle of the street, but nobody's really scared of him. He's too much of a coward and wimp to torment anyone. Townsfolk still run errands around him, kids dare each other to touch his hat. Comic relief spot. |
+| **Main Street** | Yello Billy | He's sheepishly occupying the middle of the street, but nobody's really scared of him. He's too much of a coward and wimp to torment anyone. Townsfolk still run errands around him and dare each other to touch his hat. Comic relief spot. |
 | **The Saloon** | Three-Finger Rye | Drinking for free. The barman is forced to pour him endless whiskey while patrons sit frozen, scared of the big violent drunk. Overturned tables, smashed bottles, a silent piano. |
 | **The Gambling Den** | Sam Snakeeyes | Running a rigged poker game. The other players are losing everything. Emptying wallets across the table, cards and IOUs scattered on the floor. |
 | **The Gold Mine** | Greg Goose | The Canadian trapper has claimed the mine entrance, camped in the tunnel mouth. The miners are shut out with their tools down: the town's livelihood is blocked while he sits on his furs. |
@@ -35,8 +35,9 @@ The Buffalo Gang: five male goons with no hierarchy (biker-club vibe) and Black 
 
 Earnest, not grim. The town is inconvenienced, bullied and robbed, not brutalized. When an area is freed, life snaps cheerfully back to normal. Tone reference: Punch-Out!!'s fond, larger-than-life characterizations.
 
-## Open Items
+## Implemented Finale Details
 
-- Duel order (currently listed 1-5 above; user to confirm or shuffle)
-- The Mayor's identity (name, look) — representative interview when we resume those
-- Whether the mine is a visible building on the main street map or sits at the town's edge on the map (map layout decision, belongs to TOWN-MAP.md)
+- The five regular locations can be freed in any order.
+- Mayor Hobart Plum is a short, stout elderly man with white facial hair, round spectacles, a plum top hat and tailcoat, cream waistcoat, and gold watch chain.
+- He remains tied to a chair behind Bart, flinches at shots, and appears freed and jumping after Bart falls.
+- The mine is a visible tunnel at the upper-right edge of the town map.

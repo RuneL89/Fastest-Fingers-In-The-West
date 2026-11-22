@@ -24,6 +24,8 @@ export interface DuelActor {
   y: number;
   h: number;
   flip?: boolean;
+  /** Optional reaction after the outlaw falls, such as crying at the Church. */
+  victoryKey?: string;
 }
 
 /** A furniture object drawn in the same depth-sorted pass as the crowd. */
@@ -58,6 +60,8 @@ export interface LocationDef {
   repSpot?: DuelSpot;
   /** Representative pixel height (defaults to REP_TARGET_H in DuelScene). */
   repH?: number;
+  /** Keep the representative visible during the duel and react to gunshots. */
+  repVisible?: boolean;
   /** Background regions redrawn in front of townsfolk and the representative. */
   occluders?: readonly DuelOccluder[];
   thankYou: string;
@@ -137,20 +141,61 @@ export const LOCATIONS: LocationDef[] = [
   },
   {
     id: "church", name: "THE CHURCH", fighterId: "dandy-dan",
-    mapX: 0.185, mapY: 0.43, posterX: 0.185, posterY: 0.535,
-    bgKey: "bg-church", repKey: null,
+    mapX: 0.185, mapY: 0.535, posterX: 0.185, posterY: 0.535,
+    bgKey: "bg-church", repKey: "rep-church", repName: "FATHER MERRITT",
+    // Father Merritt and the men are furious; the matrons endure Dan's poetry.
+    // Pews are separate depth-sorted objects, leaving the central aisle clear.
+    crowd: [
+      { key: "npc-townman", x: 52, y: 150, h: hOf(METERS.npc, 150) },
+      { key: "npc-matron", x: 198, y: 150, h: hOf(METERS.npc, 150), victoryKey: "npc-matron-crying" },
+      { key: "npc-oldtimer", x: 36, y: 182, h: hOf(METERS.npc, 182) },
+      { key: "npc-matron", x: 220, y: 185, h: hOf(METERS.npc, 185), flip: true, victoryKey: "npc-matron-crying" },
+      { key: "npc-townman", x: 66, y: 207, h: hOf(METERS.npc, 207), flip: true },
+      { key: "npc-matron", x: 200, y: 210, h: hOf(METERS.npc, 210), victoryKey: "npc-matron-crying" },
+      { key: "npc-laborer", x: 28, y: 252, h: hOf(METERS.npc, 252), flip: true },
+    ],
+    props: [
+      { key: "prop-church-pew", x: 48, y: 218, h: hOf(METERS.churchPew, 218) },
+      { key: "prop-church-pew", x: 222, y: 218, h: hOf(METERS.churchPew, 218) },
+      { key: "prop-church-pew", x: 50, y: 258, h: hOf(METERS.churchPew, 258) },
+      { key: "prop-church-pew", x: 220, y: 258, h: hOf(METERS.churchPew, 258) },
+    ],
+    repSpot: { x: 185, y: 168 },
+    repH: 64,
+    repVisible: true,
     thankYou: "Bless you, Sheriff. The sermon was getting unbearable.",
   },
   {
     id: "gold-mine", name: "GOLD MINE", fighterId: "greg-goose",
-    mapX: 0.82, mapY: 0.11, posterX: 0.75, posterY: 0.185,
-    bgKey: "bg-gold-mine", repKey: null,
-    thankYou: "The mine is back in business, Sheriff! You saved the whole town.",
+    mapX: 0.75, mapY: 0.185, posterX: 0.75, posterY: 0.185,
+    bgKey: "bg-gold-mine", repKey: "rep-gold-mine", repName: "DUSTY PETE",
+    // Miners gather around the blocked tunnel. Separate props sit in front
+    // of them by depth, leaving the center lane clear for Goose.
+    crowd: [
+      { key: "npc-townman", x: 55, y: 150, h: hOf(METERS.npc, 150) },
+      { key: "npc-laborer", x: 210, y: 155, h: hOf(METERS.npc, 155), flip: true },
+      { key: "npc-oldtimer", x: 45, y: 182, h: hOf(METERS.npc, 182) },
+      { key: "npc-oldtimer", x: 182, y: 205, h: hOf(METERS.npc, 205), flip: true },
+      { key: "npc-laborer", x: 218, y: 198, h: hOf(METERS.npc, 198) },
+      { key: "npc-townman", x: 60, y: 216, h: hOf(METERS.npc, 216), flip: true },
+      { key: "npc-laborer", x: 28, y: 252, h: hOf(METERS.npc, 252), flip: true },
+    ],
+    props: [
+      { key: "prop-mine-cart", x: 215, y: 220, h: hOf(METERS.mineCart, 220) },
+      { key: "prop-mining-crate", x: 55, y: 235, h: hOf(METERS.miningCrate, 235) },
+    ],
+    repSpot: { x: 92, y: 178 },
+    repH: 72,
+    thankYou: "You got the mine back! The whole town eats because of you!",
   },
   {
     id: "town-hall", name: "TOWN HALL", fighterId: "black-bart",
-    mapX: 0.50, mapY: 0.45, posterX: 0.435, posterY: 0.565,
-    bgKey: "bg-town-hall", repKey: null,
+    mapX: 0.50, mapY: 0.56, posterX: 0.435, posterY: 0.565,
+    bgKey: "bg-town-hall", repKey: "rep-town-hall", repName: "MAYOR HOBART PLUM",
+    crowd: [],
+    repSpot: { x: 211, y: 187 },
+    repH: 66,
+    repVisible: true,
     thankYou: "Tombwood Creek is free! You have my eternal gratitude, Sheriff.",
   },
 ];

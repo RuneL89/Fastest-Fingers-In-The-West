@@ -23,6 +23,9 @@ export const METERS = {
   chair: 0.95,
   tippedTable: 1.15,
   brokenChair: 0.45,
+  mineCart: 1.15,
+  miningCrate: 0.95,
+  churchPew: 1.05,
 } as const;
 
 const DEPTH_PPM: readonly (readonly [number, number])[] = [

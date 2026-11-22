@@ -10,16 +10,15 @@ character interviews, appended below as they are decided._
 Six characters with unique identities: five male goons and the leader,
 Black Bart. Townsfolk are separate (see below).
 
-Proposed goon names (duel order), to be confirmed or replaced in each
-goon's interview:
+Final roster, playable in any order before the finale:
 
-1. Cactus Jack — PoC art already exists
-2. Whiskey Wade
-3. Tumbleweed Tom
-4. Slim Sawyer
-5. Bull Nolan
+1. Yello Billy — The Coward, Main Street
+2. Three-Finger Rye — The Drunk, Saloon
+3. Sam Snakeeyes — The Card Sharp, Gambling Den
+4. Greg Goose — The Trapper, Gold Mine
+5. Dandy Dan — The Dandy Showboat, Church
 
-Leader: **Black Bart** (name locked).
+Leader: **Black Bart**, Town Hall.
 
 ## Goons: identity rules
 
@@ -78,8 +77,8 @@ Yello Billy set:
   or read better in motion.
 - Aim frame points the weapon at the viewer (the player), foreshortened
   barrel.
-- Palette per character is quantized to the game NES palette on import; raw
-  generations keep their natural palette for approval review.
+- Approved raw PNG generations are the canonical runtime assets. No NES palette
+  quantization is applied to the current character sets.
 
 ### Goon: Yello Billy — The Coward (interview complete 2026-11-21)
 
@@ -193,42 +192,24 @@ Yello Billy set:
 - **Art:** all four frames generated and approved 2026-11-21
   (`src/game/assets/gen/dandy-dan-{idle,aim,hit,down}.png`).
 
-### Black Bart — The Leader (interview complete 2026-11-21)
+### Black Bart — The Leader (complete 2026-11-22)
 
-- **Name:** Black Bart (locked).
-- **Scale:** 1.5x goon sprite height (~132 px on the 270x300 view). He
-  dominates the duel frame.
-- **Build:** Big, burly, massively muscled. Black hair, full black beard,
-  big black eyebrows.
-- **Head:** A full real buffalo head with horns and eyes worn over his head
-  like a helmet. His face glares out from under it. The head lifts on hits
-  and comes off on defeat.
-- **Clothes:** Cowboy first: faded red shirt, fur vest, leather gun belt
-  with buffalo-skull buckle, denim trousers, spurred cowboy boots.
-- **Weapon:** Big sawed-off shotgun, held two-handed.
-- **Aim pose:** Angry, both hands on the shotgun, barrels foreshortened
-  straight at the player, leaning in.
-- **Hit animation:** Shot in the stomach, doubled over, one hand clutching
-  his belly, buffalo head tilting back to reveal the pained grimace
-  underneath. Must survive being shown up to 4 times without looking
-  defeated. (Style-sheet frame; may be regenerated for motion.)
-- **Defeat:** Very bloody and dramatic in-engine: flat on his back, arms
-  spread, shotgun dropped, the buffalo head off beside him, real face slack.
-  The head coming off is the story's final image. (Raw frame generated
-  bloodless; the game's pixel-blood burst supplies the gore.)
-- **Mechanics:** normal enemy with 5 lives (RULES.md). No foreshadowing,
-  no mid-fight story beats (STORY.md). Extra rage frame: deferred, maybe
-  later.
-- **Art:** all four frames generated and approved 2026-11-21
-  (`src/game/assets/gen/black-bart-{idle,aim,hit,down}.png`).
+- **Name:** Black Bart.
+- **Scale:** 1.5x goon sprite height, 168 px on the 270x300 logical view. He dominates the duel frame.
+- **Build:** Big, burly, massively muscled, with black hair, a full black beard, and heavy eyebrows.
+- **Head:** A full buffalo head with horns and red eyes worn like a helmet. His face glares out from under it. The head comes off on defeat.
+- **Clothes:** Faded red shirt, fur vest, bullet belts, buffalo buckle, denim trousers, and spurred cowboy boots.
+- **Weapon:** Big double-barrel shotgun, held two-handed.
+- **Aim and fire:** Both hands brace the shotgun toward the player. The firing frame adds a bright muzzle starburst and angular smoke.
+- **Motion:** Idle, draw, aim, flinch, fire, hit, and down are all integrated. The flinch supports repeated exchanges; the hit and down frames retain the original identity.
+- **Mechanics:** Five lives, with no mid-fight dialogue or special phases.
+- **Art:** `src/game/assets/gen/black-bart-{idle,draw,aim,flinch,fire,hit,down}.png`.
 
 Every goon has a unique identity in two places:
 
 - **Visually**: distinct hat, bandana, vest, colors, body type, and one
   signature feature. Differentiated from every other goon at a glance.
-- **In text**: each duel opens with an exchange. The sheriff speaks first
-  (the player picks one of three offered lines), the goon responds with his
-  own line. The goon's personality lives in that response.
+- **In text**: each duel opens with the goon's line. The player picks one of three sheriff responses, then the goon delivers a closing line. The personality lives in this exchange and in the animation poses.
 
 Goon-to-location assignment happens in WORLD.md, after the individual
 characters are defined.
@@ -240,9 +221,7 @@ characters are defined.
   fight's identity.
 - No foreshadowing: the story does not mention him before he appears as the
   final duel. He is simply there.
-- Mechanically a normal enemy with five lives instead of three. No
-  mid-fight story beats, no wounding states, no anger phases. Difference is
-  size, visuals, and lives, nothing more.
+- Mechanically a normal enemy with five lives instead of the regular two. No mid-fight story beats, wounding states, or anger phases. Difference is size, visuals, and lives.
 
 ## Townsfolk
 
@@ -266,6 +245,48 @@ backstories, no family ties).
 - **Happy state:** Jumping with joy and raising his recovered gold pocket watch.
 - **Thank-you line:** "My lucky watch! You're aces, Sheriff. Aces!"
 - **Art:** `src/game/assets/gen/rep-gambling-den{,-flinch,-happy}.png`.
+
+### Representative: Stew Potts — Main Street (complete)
+
+- **Role:** Storekeeper whose shop reopens after Billy's defeat.
+- **States:** Worried, flinch, and happy. Appears on the freed map at his store.
+- **Thank-you line:** "Store's open again! First pickle's free, Sheriff."
+- **Art:** `src/game/assets/gen/rep-mainstreet{,-flinch,-happy}.png`.
+
+### Representative: Barman — Saloon (complete)
+
+- **Role:** Slim, nervous professional with slicked-back dark hair, thin moustache, black vest, burgundy bow tie, towel, and glass.
+- **States:** Polishing a glass, cowering with his towel, and jumping for joy.
+- **Thank-you line:** "First round's on the house, Sheriff. The good stuff, this time."
+- **Art:** `src/game/assets/gen/rep-saloon{,-flinch,-happy}.png`.
+
+### Representative: Dusty Pete — Gold Mine (complete 2026-11-22)
+
+- **Role:** Elderly miner in worn work clothes who speaks for the trapped miners.
+- **States:** Worried, shot flinch, and jumping celebration.
+- **Thank-you line:** "You got the mine back! The whole town eats because of you!"
+- **Art:** `src/game/assets/gen/rep-gold-mine{,-flinch,-happy}.png`.
+
+### Representative: Father Merritt — Church (complete 2026-11-22)
+
+- **Role:** Elderly silver-haired priest in a black cassock, carrying a Bible and cross necklace.
+- **States:** Angry during Dan's poetry, shielding himself from shots, and jumping with his Bible raised.
+- **Special staging:** Remains visible throughout the Church duel. He and the men celebrate while the three matrons cry.
+- **Thank-you line:** "Bless you, Sheriff. The sermon was getting unbearable."
+- **Art:** `src/game/assets/gen/rep-church{,-flinch,-happy}.png`.
+
+### Representative: Mayor Hobart Plum — Town Hall (complete 2026-11-22)
+
+- **Role:** Dignified but comical mayor and Bart's silent hostage.
+- **Look:** Short, stout, elderly, white moustache and sideburns, round spectacles, plum top hat and tailcoat, cream waistcoat, burgundy bow tie, and gold watch chain.
+- **States:** Tied indignantly to a chair, recoiling in the tipping chair, and freed jumping celebration with his hat raised.
+- **Special staging:** Visible throughout Bart's five-life duel and flinches after every shot. Delivers the final thank-you before the celebration map.
+- **Thank-you line:** "Tombwood Creek is free! You have my eternal gratitude, Sheriff."
+- **Art:** `src/game/assets/gen/rep-town-hall{,-flinch,-happy}.png`.
+
+## Completed outlaw animation sets
+
+All six opponents now have integrated `idle`, `draw`, `aim`, `flinch`, `fire`, `hit`, and `down` frames. Earlier notes in character interviews that mention only four frames refer to the original approved style sheets. The seven-frame sets in `src/game/assets/gen/` supersede those production notes.
 
 ## Character interviews
 

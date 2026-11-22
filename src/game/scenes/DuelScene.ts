@@ -63,7 +63,7 @@ export class DuelScene extends Phaser.Scene {
 
   private outlaw!: Phaser.GameObjects.Image;
   private npcs: Phaser.GameObjects.Image[] = [];
-  private rep!: Phaser.GameObjects.Image;
+  private rep?: Phaser.GameObjects.Image;
   private box!: TextBox;
   private optionTexts: Phaser.GameObjects.Text[] = [];
   private optionsPanel?: Phaser.GameObjects.Rectangle;
@@ -116,6 +116,7 @@ export class DuelScene extends Phaser.Scene {
     this.flinchT = 0;
     this.selectedOption = 0;
     this.npcs = [];
+    this.rep = undefined;
     this.optionTexts = [];
     this.optionsPanel = undefined;
     buildProps(this); // life-hat, blood pixels, flash textures
@@ -144,6 +145,9 @@ export class DuelScene extends Phaser.Scene {
         spawn: () => {
           const img = this.add.image(c.x, c.y, c.key).setOrigin(0.5, 1);
           img.setScale(c.h / img.height);
+          img.setData("baseKey", c.key);
+          img.setData("victoryKey", c.victoryKey ?? `${c.key}-happy`);
+          img.setData("targetH", c.h);
           if (c.flip) img.setFlipX(true);
           this.npcs.push(img);
         },
@@ -159,13 +163,18 @@ export class DuelScene extends Phaser.Scene {
       });
     }
     const repSpot = this.loc.repSpot ?? { x: CX + 52, y: 250 };
-    spawns.push({
-      depth: repSpot.y,
-      spawn: () => {
-        this.rep = this.add.image(repSpot.x, repSpot.y, `${this.loc.repKey}-happy`)
-          .setOrigin(0.5, 1).setVisible(false);
-      },
-    });
+    if (this.loc.repKey) {
+      const repKey = this.loc.repKey;
+      spawns.push({
+        depth: repSpot.y,
+        spawn: () => {
+          const visible = this.loc.repVisible ?? false;
+          this.rep = this.add.image(repSpot.x, repSpot.y, visible ? repKey : `${repKey}-happy`)
+            .setOrigin(0.5, 1).setVisible(visible);
+          this.fitRep();
+        },
+      });
+    }
     (this.loc.occluders ?? []).forEach((r, i) => {
       spawns.push({ depth: r.y + r.height, spawn: () => this.addDuelOccluder(r, i) });
     });
@@ -254,6 +263,9 @@ export class DuelScene extends Phaser.Scene {
       typed: this.typed,
       aiChars: this.aiChars,
       outlawPose: this.outlaw.texture.key,
+      repPose: this.rep?.texture.key ?? null,
+      repVisible: this.rep?.visible ?? false,
+      npcPoses: this.npcs.map((n) => n.texture.key),
       playerLives: run.playerLives,
       outlawLives: this.outlawLives,
       outlawIndex: 0,
@@ -275,7 +287,7 @@ export class DuelScene extends Phaser.Scene {
     } else if (this.phase === "victory") {
       this.phase = "done";
       run.freed.add(this.loc.id);
-      this.scene.start("map");
+      this.scene.start(this.loc.id === "town-hall" ? "ending" : "map");
     }
   }
 
@@ -376,7 +388,11 @@ export class DuelScene extends Phaser.Scene {
     this.playerWonExchange = playerWon;
     this.audio.sfx("shot");
     this.cameras.main.shake(140, 0.012);
-    this.npcs.forEach((n) => n.setTexture(`${n.texture.key}-flinch`));
+    this.npcs.forEach((n) => this.setNpcTexture(n, `${n.getData("baseKey")}-flinch`));
+    if (this.rep?.visible && this.loc.repKey) {
+      this.rep.setTexture(`${this.loc.repKey}-flinch`);
+      this.fitRep();
+    }
     if (playerWon) {
       this.outlawLives--;
       this.outlaw.setTexture(`${this.fighter.id}-hit`);
@@ -394,7 +410,11 @@ export class DuelScene extends Phaser.Scene {
   }
 
   private afterResolve(): void {
-    this.npcs.forEach((n) => n.setTexture(n.texture.key.replace("-flinch", "")));
+    this.npcs.forEach((n) => this.setNpcTexture(n, n.getData("baseKey") as string));
+    if (this.rep?.visible && this.loc.repKey) {
+      this.rep.setTexture(this.loc.repKey);
+      this.fitRep();
+    }
     if (this.playerWonExchange) {
       if (this.outlawLives <= 0) {
         this.victory();
@@ -420,10 +440,10 @@ export class DuelScene extends Phaser.Scene {
     this.outlaw.setTexture(`${this.fighter.id}-down`);
     this.fitOutlaw();
     this.audio.sfx("win");
-    this.npcs.forEach((n) => n.setTexture(`${n.texture.key}-happy`));
-    if (this.loc.repKey) {
-      this.rep.setVisible(true);
-      this.rep.setScale((this.loc.repH ?? REP_TARGET_H) / this.rep.height);
+    this.npcs.forEach((n) => this.setNpcTexture(n, n.getData("victoryKey") as string));
+    if (this.rep && this.loc.repKey) {
+      this.rep.setTexture(`${this.loc.repKey}-happy`).setVisible(true);
+      this.fitRep();
     }
     this.audio.setMood("title");
     this.box.say(this.loc.repName ?? "TOWNSFOLK", this.loc.thankYou, PAL.greenLight);
@@ -449,6 +469,16 @@ export class DuelScene extends Phaser.Scene {
       tex.refresh();
     }
     this.add.image(r.x, r.y, key).setOrigin(0, 0).setScale(scaleX, scaleY);
+  }
+
+  private setNpcTexture(npc: Phaser.GameObjects.Image, key: string): void {
+    npc.setTexture(key);
+    npc.setScale((npc.getData("targetH") as number) / npc.height);
+  }
+
+  private fitRep(): void {
+    if (!this.rep) return;
+    this.rep.setScale((this.loc.repH ?? REP_TARGET_H) / this.rep.height);
   }
 
   private fitOutlaw(): void {

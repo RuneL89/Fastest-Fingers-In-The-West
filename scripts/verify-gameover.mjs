@@ -8,11 +8,11 @@ page.on("pageerror", (e) => errors.push(e.stack ?? String(e)));
 const out = "/mnt/agents/output/app/verification-shots";
 
 await page.goto("http://localhost:8899/");
-await page.waitForFunction(() => window.__GAME_READY__, { timeout: 20000 });
+await page.waitForFunction(() => window.__GAME_READY__, null, { timeout: 20000 });
 await page.keyboard.press("Space"); // normal
 await page.waitForTimeout(500);
 await page.keyboard.press("Escape"); // skip prologue
-await page.waitForFunction(() => !!window.__map, { timeout: 10000 });
+await page.waitForFunction(() => !!window.__map, null, { timeout: 10000 });
 
 // Town Hall locked modal
 const canvas = await page.locator("canvas#game-canvas").boundingBox();

@@ -53,7 +53,7 @@ Examples (final lines per representative interview):
 
 ## Black Bart — The Finale
 
-Town Hall unlocks, no ceremony, no foreshadowing (per STORY.md). Bart's intro exchange happens on the town hall steps with the **Mayor tied up in the background** — visible but silent during the duel.
+Town Hall unlocks, no ceremony, no foreshadowing (per STORY.md). Bart's intro exchange happens inside Town Hall with **Mayor Hobart Plum tied up in the background**, visible but silent during the duel.
 
 When Bart falls: the **Mayor delivers the final thank-you line**, the town's voice of relief.
 
@@ -79,10 +79,9 @@ On the third lost life: a simple **GAME OVER** card with one narrator line —
 - Speaker names in color per character; narrator text unadorned.
 - Text boxes advance on keypress; no auto-advance.
 
-## Open Items
+## Implemented Text
 
-- Final prologue/closing wording (critique above)
-- Actual phrase pools (written during implementation, per goon theme table)
-- Per-goon intro exchanges and the three sheriff option tones (drafted after representative interviews resume, or on request)
-- Representative thank-you lines (written in the representative interviews)
-- Bart's intro exchange (needs his dialogue voice defined)
+- Final prologue and closing wording are in `src/game/data/dialogue.ts` and `src/game/scenes/EndingScene.ts`.
+- Every duel has an opening, three sheriff response tones, a closing response, and a themed phrase pool.
+- Every location has a named representative and thank-you line.
+- Bart's defeat leads to the Mayor's line, the celebration map, the closing text, and title return.

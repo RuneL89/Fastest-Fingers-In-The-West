@@ -7,6 +7,9 @@ export interface DuelProbe {
   typed: number;
   aiChars: number;
   outlawPose: string;
+  repPose: string | null;
+  repVisible: boolean;
+  npcPoses: string[];
   playerLives: number;
   outlawLives: number;
   outlawIndex: number;
@@ -20,6 +23,7 @@ declare global {
     __GAME_READY__?: boolean;
     __duel?: () => DuelProbe;
     __map?: () => { freed: string[]; unlocked: boolean; lives: number };
+    __ending?: () => { stage: "celebration" | "closing"; freed: string[]; complete: boolean };
   }
 }
 

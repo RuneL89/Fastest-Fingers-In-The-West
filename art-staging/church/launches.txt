@@ -1,0 +1,14 @@
+Job log: /tmp/image_generation-job-mi1rar0a/worker.log
+Job PID file: /tmp/image_generation-job-mi1rar0a/worker.pid
+Job log: /tmp/image_generation-job-l0itbfav/worker.log
+Job PID file: /tmp/image_generation-job-l0itbfav/worker.pid
+Job log: /tmp/image_generation-job-alv4dq_j/worker.log
+Job PID file: /tmp/image_generation-job-alv4dq_j/worker.pid
+Job log: /tmp/image_generation-job-0rqqvq4u/worker.log
+Job PID file: /tmp/image_generation-job-0rqqvq4u/worker.pid
+Job log: /tmp/image_generation-job-mwt0bgxb/worker.log
+Job PID file: /tmp/image_generation-job-mwt0bgxb/worker.pid
+Job log: /tmp/image_generation-job-v50col6k/worker.log
+Job PID file: /tmp/image_generation-job-v50col6k/worker.pid
+Job log: /tmp/image_generation-job-3esz8fnw/worker.log
+Job PID file: /tmp/image_generation-job-3esz8fnw/worker.pid

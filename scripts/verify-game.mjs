@@ -1,12 +1,10 @@
 /**
- * verify-game.mjs — Playwright self-check for Fastest Fingers in the West.
- * Serves dist → zero console errors → screenshots of every key state →
- * real gameplay assertions: lenient wrong keys, winning exchanges, pause,
- * mute, restart, outlaw defeat + bounty, game over, full ladder victory,
- * endless mode entry.
- *
- * Usage: npm run build && node scripts/verify-game.mjs
+ * verify-game.mjs — cold production playthrough of the complete story mode.
+ * Serves dist, plays all six duels through their real posters and dialogue,
+ * checks the five-goon Town Hall gate, five-life Bart finale, touch ending,
+ * title return, and clean new-run reset. No debug unlocks or scene injection.
  */
+import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -16,179 +14,167 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const DIST = existsSync(join(ROOT, "dist/public/index.html")) ? join(ROOT, "dist/public") : join(ROOT, "dist");
-if (!existsSync(join(DIST, "index.html"))) {
-  console.error(`VERIFY FAIL: no build output at ${DIST} — run npm run build first`);
-  process.exit(1);
-}
+if (!existsSync(join(DIST, "index.html"))) throw new Error(`No build output at ${DIST}; run npm run build first`);
 const SHOTS = join(ROOT, "verification-shots");
 mkdirSync(SHOTS, { recursive: true });
-const CANVAS_ID = "game-canvas";
 
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".json": "application/json", ".wasm": "application/wasm", ".ttf": "font/ttf" };
+const MIME = {
+  ".html": "text/html", ".js": "text/javascript", ".css": "text/css",
+  ".png": "image/png", ".jpg": "image/jpeg", ".json": "application/json",
+  ".wasm": "application/wasm", ".ttf": "font/ttf", ".woff": "font/woff",
+  ".woff2": "font/woff2", ".svg": "image/svg+xml",
+};
 const server = createServer(async (req, res) => {
   try {
     const raw = req.url === "/" ? "/index.html" : req.url.split("?")[0];
-    let path;
-    try { path = decodeURIComponent(raw); } catch { path = raw; }
-    const file = resolve(DIST, "." + path);
+    const file = resolve(DIST, "." + decodeURIComponent(raw));
     if (file !== DIST && !file.startsWith(DIST + sep)) { res.writeHead(403).end(); return; }
     const data = await readFile(file);
     res.writeHead(200, { "content-type": MIME[extname(file)] || "application/octet-stream" });
     res.end(data);
   } catch { res.writeHead(404).end(); }
 });
-const fail = (msg) => { console.error("VERIFY FAIL:", msg); server.close(); process.exit(1); };
-
-await new Promise((r) => server.listen(0, r));
+await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const port = server.address().port;
-const CANDIDATES = [process.env.CHROMIUM_PATH, "/usr/bin/chromium", "/opt/gchrome/opt/google/chrome/chrome", "/usr/bin/chromium-browser", "/usr/bin/google-chrome"].filter(Boolean);
-let browser;
-for (const exe of [null, ...CANDIDATES]) {
-  try {
-    browser = await chromium.launch(exe ? { executablePath: exe, args: ["--no-sandbox", "--disable-gpu-sandbox", "--use-gl=swiftshader"] } : {});
-    break;
-  } catch { /* next */ }
-}
-if (!browser) fail("no usable browser found");
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-const consoleErrors = [];
-page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(m.text()); });
-page.on("pageerror", (e) => consoleErrors.push(String(e)));
 
-const probe = () => page.evaluate(() => window.__duel());
-const waitPhase = (phase, timeout = 30000) =>
-  page.waitForFunction((p) => window.__duel && window.__duel().phase === p, phase, { timeout });
+const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] });
+const page = await browser.newPage({ viewport: { width: 1080, height: 2340 } });
+const errors = [];
+page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+page.on("pageerror", (e) => errors.push(String(e)));
 const shot = (name) => page.screenshot({ path: join(SHOTS, name) });
+const duel = () => page.evaluate(() => window.__duel?.());
+const map = () => page.evaluate(() => window.__map?.());
+const waitPhase = (phase) => page.waitForFunction((p) => window.__duel?.().phase === p, phase, { timeout: 20000 });
 
-await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
-await page.waitForFunction(() => window.__GAME_READY__ === true, null, { timeout: 10000 })
-  .catch(() => fail("window.__GAME_READY__ never turned true"));
-await page.waitForTimeout(900);
+const locations = [
+  { id: "main-street", outlaw: "yello-billy", x: 0.62, y: 0.70, lives: 2 },
+  { id: "saloon", outlaw: "three-finger-rye", x: 0.29, y: 0.275, lives: 2 },
+  { id: "gambling-den", outlaw: "sam-snakeeyes", x: 0.29, y: 0.77, lives: 2 },
+  { id: "gold-mine", outlaw: "greg-goose", x: 0.75, y: 0.185, lives: 2 },
+  { id: "church", outlaw: "dandy-dan", x: 0.185, y: 0.535, lives: 2 },
+  { id: "town-hall", outlaw: "black-bart", x: 0.435, y: 0.565, lives: 5 },
+];
 
-// 1) canvas actually renders (drawing-buffer readback, robust on swiftshader)
-const canvasCheck = await page.evaluate((id) => {
-  const SAMPLES = [[0.5, 0.5], [0.25, 0.5], [0.75, 0.5], [0.5, 0.25], [0.5, 0.75]];
-  const el = document.getElementById(id);
-  if (!(el instanceof HTMLCanvasElement)) return { kind: "no-canvas" };
-  const gl = el.getContext("webgl2") || el.getContext("webgl");
-  if (gl) {
-    const px = new Uint8Array(4);
-    let lit = 0;
-    for (const [fx, fy] of SAMPLES) {
-      gl.readPixels((gl.drawingBufferWidth * fx) | 0, (gl.drawingBufferHeight * fy) | 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
-      if (px[3] > 0 && px[0] + px[1] + px[2] > 8) lit++;
-    }
-    return { kind: "lit", lit };
-  }
-  const ctx = el.getContext("2d");
-  if (ctx) {
-    let lit = 0;
-    for (const [fx, fy] of SAMPLES) {
-      const d = ctx.getImageData((el.width * fx) | 0, (el.height * fy) | 0, 1, 1).data;
-      if (d[3] > 0 && d[0] + d[1] + d[2] > 8) lit++;
-    }
-    return { kind: "lit", lit };
-  }
-  return { kind: "no-context" };
-}, CANVAS_ID);
-if (canvasCheck.kind !== "lit" || canvasCheck.lit < 2) fail(`canvas render check: ${JSON.stringify(canvasCheck)}`);
-await shot("01-title.png");
+try {
+  await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => window.__GAME_READY__ === true, null, { timeout: 30000 });
+  await shot("campaign-00-title.png");
+  const canvas = await page.locator("canvas#game-canvas").boundingBox();
+  assert.ok(canvas && canvas.width > 0 && canvas.height > 0, "Game canvas must be visible");
+  const gx = (nx, ny) => ({ x: canvas.x + nx * canvas.width, y: canvas.y + ny * canvas.height });
+  const tapGame = async (nx, ny) => {
+    const p = gx(nx, ny);
+    await page.mouse.click(p.x, p.y);
+  };
 
-// 2) start a run, reach the first race
-await page.keyboard.press("Space");
-await waitPhase("race");
-await page.waitForTimeout(150);
-await shot("02-race.png");
-
-// 3) lenient wrong-key rule: a wrong letter must not advance progress
-let s = await probe();
-const wrong = s.word[0].toLowerCase() === "q" ? "z" : "q";
-await page.keyboard.press(wrong);
-await page.waitForTimeout(120);
-s = await probe();
-if (s.typed !== 0) fail(`wrong key advanced typing progress (typed=${s.typed})`);
-
-// 4) type the word, win the exchange, screenshot the shot
-await page.keyboard.type(s.word.toLowerCase(), { delay: 12 });
-await waitPhase("resolve");
-await shot("03-shot.png");
-await page.waitForFunction(() => window.__duel().phase !== "resolve", null, { timeout: 10000 });
-s = await probe();
-if (s.outlawLives !== 2) fail(`outlaw should have 2 lives after losing exchange, got ${s.outlawLives}`);
-
-// 5) pause / resume / mute
-await page.keyboard.press("Escape");
-await page.waitForTimeout(250);
-s = await probe();
-if (!s.paused) fail("Esc did not pause");
-await shot("04-paused.png");
-await page.keyboard.press("m");
-await page.waitForTimeout(120);
-s = await probe();
-if (!s.muted) fail("M did not mute");
-await page.keyboard.press("m");
-await page.keyboard.press("Escape");
-await page.waitForTimeout(150);
-s = await probe();
-if (s.paused) fail("Esc did not resume");
-
-// 6) finish outlaw #1: win exchanges until he goes down, bounty must register
-for (let i = 0; i < 6; i++) {
-  s = await probe();
-  if (s.outlawIndex > 0) break;
-  if (s.phase === "outlawdown") {
-    await shot("05-outlawdown.png");
-    await page.waitForFunction(() => window.__duel().outlawIndex > 0, null, { timeout: 15000 });
-    break;
-  }
-  await waitPhase("race");
-  s = await probe();
-  await page.keyboard.type(s.word.toLowerCase(), { delay: 8 });
+  await page.keyboard.press("Space");
   await page.waitForTimeout(400);
-}
-s = await probe();
-if (s.outlawIndex < 1 || s.bounty !== 100) fail(`outlaw 1 not defeated correctly: ${JSON.stringify(s)}`);
-if (!existsSync(join(SHOTS, "05-outlawdown.png"))) await shot("05-outlawdown.png");
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => !!window.__map, null, { timeout: 30000 });
+  assert.deepEqual((await map()).freed, []);
+  assert.equal((await map()).unlocked, false);
+  assert.equal((await map()).lives, 3);
 
-// 7) pause -> R restarts the run (bounty and lives reset)
-await page.keyboard.press("Escape");
-await page.waitForTimeout(150);
-await page.keyboard.press("r");
-await page.waitForTimeout(200);
-s = await probe();
-if (s.outlawIndex !== 0 || s.bounty !== 0 || s.playerLives !== 3 || s.paused) fail(`restart via R broken: ${JSON.stringify(s)}`);
+  // The real lock must reject Bart before any goon has been defeated.
+  await tapGame(0.435, 0.565);
+  await page.waitForTimeout(400);
+  await shot("campaign-01-town-hall-locked.png");
+  await tapGame(0.5, 0.88); // start-button area: must not start a duel
+  await page.waitForTimeout(300);
+  assert.ok(await page.evaluate(() => !!window.__map), "Locked Town Hall must stay on map");
+  await tapGame(0.08, 0.12); // close through the scrim
+  await page.waitForTimeout(300);
 
-// 8) game over by idling (opponent outdraws us 3 times)
-await page.waitForFunction(() => window.__duel().phase === "gameover", null, { timeout: 90000 });
-await shot("06-gameover.png");
-s = await probe();
-if (s.playerLives !== 0) fail("game over with lives remaining?");
+  for (let li = 0; li < locations.length; li++) {
+    const loc = locations[li];
+    if (loc.id === "town-hall") assert.equal((await map()).unlocked, true, "Town Hall opens after all five goons");
+    await tapGame(loc.x, loc.y);
+    await page.waitForTimeout(450);
+    await tapGame(0.5, 264 / 300);
+    await page.waitForFunction((id) => window.__duel?.().outlawPose === `${id}-idle`, loc.outlaw, { timeout: 20000 });
 
-// 9) full ladder victory: win every exchange by typing fast
-await page.keyboard.press("Space");
-const deadline = Date.now() + 240000;
-let won = false;
-while (Date.now() < deadline) {
-  s = await probe();
-  if (s.phase === "victory") { won = true; break; }
-  if (s.phase === "gameover") fail("lost the run during victory playthrough (typing should always win)");
-  if (s.phase === "race") {
-    await page.keyboard.type(s.word.toLowerCase(), { delay: 5 });
-    await page.waitForTimeout(250);
-  } else {
-    await page.waitForTimeout(200);
+    for (let i = 0; i < 10 && (await duel()).phase !== "options"; i++) {
+      await page.keyboard.press("Space");
+      await page.waitForTimeout(180);
+    }
+    assert.equal((await duel()).phase, "options", `${loc.outlaw} opening dialogue`);
+    await page.keyboard.press(String((li % 3) + 1));
+    for (let i = 0; i < 10 && (await duel()).phase !== "race"; i++) {
+      await page.keyboard.press("Space");
+      await page.waitForTimeout(180);
+    }
+    await waitPhase("race");
+
+    for (let ex = 0; ex < loc.lives; ex++) {
+      const before = await duel();
+      assert.ok(before.word.length > 0, "A shared typing word must be visible");
+      if (li === 0 && ex === 0) {
+        const wrong = before.word[0].toLowerCase() === "q" ? "z" : "q";
+        await page.keyboard.press(wrong);
+        await page.waitForTimeout(80);
+        assert.equal((await duel()).typed, 0, "Wrong keys only waste time");
+      }
+      if (ex === 0) await shot(`campaign-${loc.id}-race.png`);
+      await page.keyboard.type((await duel()).word.toLowerCase(), { delay: 18 });
+      await page.waitForFunction((lives) => window.__duel?.().phase === "resolve" && window.__duel?.().outlawLives === lives, loc.lives - ex - 1, { timeout: 10000 });
+      if (loc.id === "town-hall") {
+        assert.equal((await duel()).repVisible, true, "Mayor stays visible throughout Bart's duel");
+        assert.equal((await duel()).repPose, "rep-town-hall-flinch", "Mayor reacts to every shot");
+      }
+      if (ex < loc.lives - 1) await waitPhase("race");
+    }
+    await waitPhase("victory");
+    assert.equal((await duel()).outlawLives, 0);
+    if (loc.id === "church") {
+      const states = (await duel()).npcPoses;
+      assert.equal(states.filter((p) => p === "npc-matron-crying").length, 3, "All three matrons cry");
+      assert.equal((await duel()).repPose, "rep-church-happy", "Father Merritt celebrates");
+    }
+    await shot(`campaign-${loc.id}-victory.png`);
+
+    if (loc.id === "town-hall") {
+      for (let i = 0; i < 8 && !(await page.evaluate(() => !!window.__ending)); i++) {
+        await page.keyboard.press("Space");
+        await page.waitForTimeout(250);
+      }
+      await page.waitForFunction(() => window.__ending?.().stage === "celebration", null, { timeout: 15000 });
+      const ending = await page.evaluate(() => window.__ending());
+      assert.equal(ending.freed.length, 6, "All six locations are freed in the celebration");
+      await shot("campaign-ending-celebration.png");
+    } else {
+      for (let i = 0; i < 8 && !(await map()).freed.includes(loc.id); i++) {
+        await page.keyboard.press("Space");
+        await page.waitForTimeout(250);
+      }
+      await page.waitForFunction((id) => window.__map?.().freed.includes(id), loc.id, { timeout: 15000 });
+      await page.waitForTimeout(500);
+      assert.equal((await map()).freed.length, li + 1);
+      assert.equal((await map()).unlocked, li === 4);
+      console.log(`Freed ${loc.id}; campaign progress ${li + 1}/5`);
+    }
   }
+
+  // Complete the ending with pointer input, covering touch advancement.
+  await tapGame(0.5, 0.45);
+  await page.waitForFunction(() => window.__ending?.().stage === "closing", null, { timeout: 10000 });
+  await page.waitForTimeout(500);
+  await shot("campaign-ending-closing.png");
+  await tapGame(0.5, 0.45); // finish typewriter reveal
+  await page.waitForTimeout(250);
+  await shot("campaign-ending-closing-full.png");
+  await tapGame(0.5, 0.45); // return to title and reset only now
+  await page.waitForFunction(() => window.__ending?.().complete === true, null, { timeout: 10000 });
+  await shot("campaign-ending-title.png");
+
+  await page.keyboard.press("Space");
+  await page.waitForTimeout(400);
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => window.__map?.().freed.length === 0 && window.__map().lives === 3, null, { timeout: 15000 });
+  assert.equal((await map()).unlocked, false, "A new run locks Town Hall again");
+  assert.deepEqual(errors, [], "No console or page errors during the campaign");
+  console.log("VERIFY OK: full six-duel campaign, wrong keys, lock, representatives, five-life Bart, touch ending, title reset, zero browser errors");
+} finally {
+  await browser.close();
+  server.close();
 }
-if (!won) fail("never reached victory within the playthrough budget");
-await shot("07-victory.png");
-
-// 10) endless mode
-await page.keyboard.press("Enter");
-await page.waitForTimeout(300);
-s = await probe();
-if (s.endlessCycle !== 1) fail(`Enter did not start endless mode: ${JSON.stringify(s)}`);
-
-if (consoleErrors.length) fail(`${consoleErrors.length} console error(s): ${consoleErrors[0]}`);
-await browser.close();
-server.close();
-console.log("VERIFY OK: render/start/lenient-keys/win/pause/mute/restart/bounty/gameover/victory/endless all passed; screenshots in verification-shots/");

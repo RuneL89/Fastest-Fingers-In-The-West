@@ -68,36 +68,37 @@ The complete two-life gambling-den duel is playable with seven depth-sorted town
 
 Verification passed for Billy, Rye, and Snakeeyes victories; both Rye and Snakeeyes animation sequences; game over and full restart; loading; title keyboard opening; AI pacing; and mobile typing. The production build and fresh-browser production checks also passed with zero console errors.
 
-## Phase 3A — ART: Gold Mine Set (Greg Goose)
+## Phase 3A — ART: Gold Mine Set (Greg Goose) (COMPLETE 2026-11-22)
 
-Mine background, poster, Goose draw/flinch/fire frames, representative interview + sprite.
+Completed the empty mine background, separate mine cart and mining crate, Goose draw/flinch/fire frames, and Dusty Pete's worried/flinch/happy representative set. Existing Goose poster and idle/aim/hit/down frames were retained. Prompts and asset records are in `ART.md`.
 
-## Phase 4 — DEV: Goose Duel
+## Phase 4 — DEV: Goose Duel (COMPLETE 2026-11-22)
 
-## Phase 4A — ART: Church Set (Dandy Dan)
+The complete two-life Gold Mine duel is playable with seven depth-sorted miners, two separate props, Goose dialogue and wilderness phrases, the full live combat sequence, Dusty Pete's thank-you, and the freed-mine map state.
 
-Church background (Dan posing, women on pews, angry priest and men), poster, Dan draw/flinch/fire frames, representative interview (priest) + sprite.
+## Phase 4A — ART: Church Set (Dandy Dan) (COMPLETE 2026-11-22)
 
-## Phase 5 — DEV: Dan Duel
+Completed the empty chapel background, separate pew, Dan draw/flinch/fire frames, Father Merritt's angry/flinch/happy set, and the crying matron reaction. Existing Dan poster and idle/aim/hit/down frames were retained.
 
-**Exit criteria:** all five areas freeable, any order, full loop each.
+## Phase 5 — DEV: Dan Duel (COMPLETE 2026-11-22)
 
-## Phase 5A — ART: Finale Set (Black Bart + Presentation)
+The complete two-life Church duel is playable with seven congregants, four depth-sorted pews, Dan dialogue and romance phrases, and the full live combat sequence. Father Merritt stays visible during the duel. On victory, the priest and men celebrate while all three matrons cry. Father Merritt's freed-map marker stands at the church doorway.
 
-1. Town Hall background (Mayor tied up in background).
-2. Bart WANTED poster.
-3. Bart extra frames as needed (recoil, head-lift variants for 4 surviving hits).
-4. Mayor sprite + interview.
-5. Prologue slides (~5, narrator text images) and closing slide.
-6. Title screen art + wordmark, UI panels, game over card, difficulty select chrome.
+All five regular areas can be completed in any order. The engine now supports persistent representatives and per-actor victory reactions for every location.
 
-## Phase 6 — DEV: Finale
+## Phase 5A — ART: Finale Set (Black Bart + Mayor) (COMPLETE 2026-11-22)
 
-1. Town Hall unlock flow with no foreshadowing (STORY.md).
-2. Bart at 1.5× scale, 5 lives, buffalo head hit/defeat logic, in-engine pixel blood burst on final fall.
-3. Bart intro exchange; Mayor final thank-you; ending slides; credits; game over card.
+Completed the empty Town Hall council chamber, Bart draw/flinch/fire frames, and Mayor Hobart Plum's tied/flinch/freed-happy set. Bart's existing poster and idle/aim/hit/down frames were retained. The epilogue reuses the approved town map and established pixel-text presentation, so no extra closing illustration was required for v1.
 
-**Exit criteria:** the game is complete start-to-finish in the browser.
+## Phase 6 — DEV: Finale and Complete Campaign (COMPLETE 2026-11-22)
+
+1. Town Hall unlocks only after all five regular goons are defeated.
+2. Bart fights at 1.5× normal scale with five lives and a complete seven-frame set.
+3. The tied Mayor remains visible and flinches after every shot, then appears freed for the final thank-you.
+4. Bart's victory opens a celebration map with all six representatives, followed by a short epilogue and title return.
+5. The run resets only after the ending. Starting again restores three lives, empty freed locations, and the Town Hall lock.
+
+A cold production-browser campaign passed from title through all six duels and the ending without debug unlocks. Individual duel regressions, game over/restart, loading, title keyboard access, AI pacing, touch dialogue selection, and mobile typing also passed with zero browser errors.
 
 ## Phase 6A — ART: Audio (OPTIONAL POLISH, not a v1 blocker)
 
@@ -126,8 +127,7 @@ The user accepted the existing audio for v1 on 2026-11-22. Revisit this phase on
 - Scoring/star ratings.
 - Saves/checkpoints.
 
-## Open Questions (non-blocking)
+## Remaining optional decisions
 
-- Separate Bart duel track: decide in Phase 6A.
-- Map celebration after Bart: decide in Phase 8.
-- Representative interviews happen inside each art phase (1A-5A).
+- A separate Bart duel track remains optional audio polish, not a v1 blocker.
+- Android packaging and physical Clicks Communicator testing remain in Phase 8.

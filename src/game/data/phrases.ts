@@ -1,7 +1,6 @@
 /**
  * phrases.ts — per-goon phrase pools, themed per NARRATIVE.md.
- * Lowercase letters only. Billy's pool is complete (Phase 1);
- * the other pools are stubs for later phases.
+ * Lowercase letters only, with a themed pool for every duelist.
  */
 export const PHRASE_POOLS: Record<string, readonly string[]> = {
   "yello-billy": [
@@ -12,9 +11,9 @@ export const PHRASE_POOLS: Record<string, readonly string[]> = {
   ],
   "three-finger-rye": ["whiskey", "saloon", "bottle", "barrel", "tavern", "drunk"],
   "sam-snakeeyes": ["poker", "gamble", "dealer", "aces", "cheat", "ante", "flush"],
-  "greg-goose": ["beaver", "timber", "trapper", "moose", "forest", "cabin", "pelts"],
-  "dandy-dan": ["romance", "darling", "flowers", "dearest", "heartthrob", "adore"],
-  "black-bart": ["buffalo", "revenge", "outlaw", "destruction", "showdown"],
+  "greg-goose": ["beaver", "timber", "trapper", "moose", "forest", "cabin", "pelts", "nugget", "tunnel", "pickaxe"],
+  "dandy-dan": ["romance", "darling", "flowers", "dearest", "adore", "sonnet", "poetry", "charm", "heart", "roses"],
+  "black-bart": ["buffalo", "revenge", "outlaw", "showdown", "bandit", "stampede", "lawless", "rampage", "gunslinger", "tombwood"],
 };
 
 export function phraseFor(fighterId: string, rnd: () => number): string {

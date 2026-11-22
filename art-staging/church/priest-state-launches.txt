@@ -1,0 +1,4 @@
+Job log: /tmp/image_generation-job-v9a1nhu2/worker.log
+Job PID file: /tmp/image_generation-job-v9a1nhu2/worker.pid
+Job log: /tmp/image_generation-job-_uzp2l14/worker.log
+Job PID file: /tmp/image_generation-job-_uzp2l14/worker.pid

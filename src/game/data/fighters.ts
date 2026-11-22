@@ -1,8 +1,7 @@
 /**
  * fighters.ts — the Buffalo Gang roster as data.
  * Art texture keys match the imports registered in scenes/preload.ts.
- * Frame availability: only Yello Billy has the full 7-frame set in Phase 1;
- * the others have their 4-frame style sheets and unlock in later phases.
+ * Every playable duelist uses the same seven-frame action sequence.
  */
 export interface FighterDef {
   id: string;
@@ -36,17 +35,17 @@ export const FIGHTERS: Record<string, FighterDef> = {
   "greg-goose": {
     id: "greg-goose", name: "GREG GOOSE", color: "#AC7C00",
     lives: 2, scale: 1, bounty: 500,
-    frames: ["idle", "aim", "hit", "down"],
+    frames: ["idle", "draw", "aim", "flinch", "fire", "hit", "down"],
   },
   "dandy-dan": {
     id: "dandy-dan", name: "DANDY DAN", color: "#F87858",
     lives: 2, scale: 1, bounty: 500,
-    frames: ["idle", "aim", "hit", "down"],
+    frames: ["idle", "draw", "aim", "flinch", "fire", "hit", "down"],
   },
   "black-bart": {
     id: "black-bart", name: "BLACK BART", color: "#F83800",
     lives: 5, scale: 1.5, bounty: 1200,
-    frames: ["idle", "aim", "hit", "down"],
+    frames: ["idle", "draw", "aim", "flinch", "fire", "hit", "down"],
   },
 };
 

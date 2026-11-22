@@ -42,6 +42,33 @@ export const DIALOGUE: Record<string, DuelDialogue> = {
     ],
     closing: "Ha! I'll deal you in... six feet under!",
   },
+  "greg-goose": {
+    opening: "Well, look what crawled out of the creek. This here's my mine now, lawman.",
+    options: [
+      { tone: "STERN", line: "Step away from the tunnel, Goose. The miners are going back to work." },
+      { tone: "DRY WIT", line: "I've seen quicker traps on a cabin door." },
+      { tone: "GENTLE", line: "Share the trail, Greg. Nobody needs to get hurt." },
+    ],
+    closing: "I'll bag you like a varmint!",
+  },
+  "dandy-dan": {
+    opening: "Ah, the sheriff arrives at last. Do try not to interrupt the poetry, darling.",
+    options: [
+      { tone: "STERN", line: "Step away from the congregation, Dan. Your recital is over." },
+      { tone: "DRY WIT", line: "Your rhymes are cruel. Your aim had better not be." },
+      { tone: "GENTLE", line: "Holster the gun, Dan. Let these folks go home." },
+    ],
+    closing: "But I haven't reached the romantic finale!",
+  },
+  "black-bart": {
+    opening: "Five fool gunmen brought you here. One big buffalo sends you back.",
+    options: [
+      { tone: "STERN", line: "Your gang is finished, Bart. Let the Mayor go." },
+      { tone: "DRY WIT", line: "That head is all buffalo. Let's see if you have any brains." },
+      { tone: "GENTLE", line: "There is still a road out of town, Bart. Take it alive." },
+    ],
+    closing: "This town belongs to the Buffalo Gang. And I belong to nobody!",
+  },
 };
 
 export const PROLOGUE: readonly string[] = [

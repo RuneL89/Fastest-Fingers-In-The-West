@@ -9,6 +9,7 @@ import { PrologueScene } from "./scenes/PrologueScene";
 import { MapScene } from "./scenes/MapScene";
 import { DuelScene } from "./scenes/DuelScene";
 import { GameOverScene } from "./scenes/GameOverScene";
+import { EndingScene } from "./scenes/EndingScene";
 import { VIEW, RENDER_SCALE } from "./config";
 
 let game: Phaser.Game | null = null;
@@ -52,7 +53,7 @@ export async function startGame(canvas: HTMLCanvasElement): Promise<void> {
       width: VIEW.W * RENDER_SCALE,
       height: VIEW.H * RENDER_SCALE,
     },
-    scene: [TitleScene, PrologueScene, MapScene, DuelScene, GameOverScene],
+    scene: [TitleScene, PrologueScene, MapScene, DuelScene, GameOverScene, EndingScene],
   });
 }
 

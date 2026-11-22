@@ -2,8 +2,8 @@
  * MapScene.ts — the top-down map of Tombwood Creek.
  * Tormented locations show WANTED posters; freed ones show the happy
  * representative. Town Hall stays padlocked until all five goons fall.
- * Phases 1–3: Main Street, the Saloon, and the Gambling Den have real duels;
- * other posters show a stub note.
+ * Completed locations open directly from their posters. Town Hall alone
+ * remains gated by campaign progress.
  */
 import Phaser from "phaser";
 import { VIEW, PAL, RENDER_SCALE } from "../config";
@@ -112,7 +112,7 @@ export class MapScene extends Phaser.Scene {
     this.closeModal();
     this.audio.sfx("ui");
     const locked = loc.id === "town-hall" && !townHallUnlocked();
-    const built = loc.id === "main-street" || loc.id === "saloon" || loc.id === "gambling-den";
+    const built = ["main-street", "saloon", "gambling-den", "gold-mine", "church", "town-hall"].includes(loc.id);
     const c = this.add.container(0, 0);
     this.modal = c;
 
