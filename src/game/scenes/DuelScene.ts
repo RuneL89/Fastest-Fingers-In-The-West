@@ -128,20 +128,25 @@ export class DuelScene extends Phaser.Scene {
 
     this.add.image(0, 0, this.loc.bgKey).setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
 
-    // background townsfolk: worried during the duel, flinch on shots, happy after
+    // Background townsfolk stay inside the painted scene, partly behind the
+    // bar, tables, or storefronts. The occluders remain over their happy
+    // victory states so they celebrate from cover instead of the foreground.
     const npcKeys = this.loc.npcs ?? ["npc-townman", "npc-matron"];
-    const npcX = [34, VIEW.W - 34];
+    const npcSpots = this.loc.npcSpots ?? [{ x: 34, y: 252 }, { x: VIEW.W - 34, y: 252 }];
     npcKeys.forEach((key, i) => {
-      const img = this.add.image(npcX[i], 252, key).setOrigin(0.5, 1);
+      const img = this.add.image(npcSpots[i].x, npcSpots[i].y, key).setOrigin(0.5, 1);
       img.setScale(NPC_TARGET_H / img.height);
       this.npcs.push(img);
     });
 
+    const repSpot = this.loc.repSpot ?? { x: CX + 52, y: 250 };
+    this.rep = this.add.image(repSpot.x, repSpot.y, `${this.loc.repKey}-happy`)
+      .setOrigin(0.5, 1).setVisible(false);
+
+    this.addDuelOccluders();
+
     this.outlaw = this.add.image(CX, 236, `${this.fighter.id}-idle`).setOrigin(0.5, 1);
     this.fitOutlaw();
-
-    this.rep = this.add.image(CX + 52, 250, `${this.loc.repKey}-happy`)
-      .setOrigin(0.5, 1).setVisible(false);
 
     this.flashFx = this.add.rectangle(CX, VIEW.H / 2, VIEW.W, VIEW.H, 0xd82800, 0).setDepth(90);
 
@@ -381,6 +386,29 @@ export class DuelScene extends Phaser.Scene {
   }
 
   /* ---------------- helpers ---------------- */
+
+  /** Redraw selected background regions in front of hidden townsfolk. */
+  private addDuelOccluders(): void {
+    if (!this.loc.occluders?.length) return;
+    const src = this.textures.get(this.loc.bgKey).getSourceImage() as HTMLImageElement;
+    const scaleX = VIEW.W / src.width;
+    const scaleY = VIEW.H / src.height;
+    this.loc.occluders.forEach((r, i) => {
+      const sx = Math.max(0, Math.floor(r.x / scaleX));
+      const sy = Math.max(0, Math.floor(r.y / scaleY));
+      const sw = Math.min(src.width - sx, Math.ceil(r.width / scaleX));
+      const sh = Math.min(src.height - sy, Math.ceil(r.height / scaleY));
+      const key = `${this.loc.bgKey}-occ-${i}`;
+      if (!this.textures.exists(key)) {
+        const tex = this.textures.createCanvas(key, sw, sh);
+        if (!tex) return;
+        const ctx = tex.getContext();
+        ctx.drawImage(src, sx, sy, sw, sh, 0, 0, sw, sh);
+        tex.refresh();
+      }
+      this.add.image(r.x, r.y, key).setOrigin(0, 0).setScale(scaleX, scaleY);
+    });
+  }
 
   private fitOutlaw(): void {
     this.outlaw.setScale((FIGHTER_TARGET_H * this.fighter.scale) / this.outlaw.height);

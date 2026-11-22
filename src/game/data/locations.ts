@@ -3,6 +3,18 @@
  * Map hotspot positions are normalized (0..1) against the map image;
  * the MapScene multiplies them by the view size.
  */
+export interface DuelSpot {
+  x: number;
+  y: number;
+}
+
+export interface DuelOccluder {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface LocationDef {
   id: string;
   name: string;
@@ -21,6 +33,12 @@ export interface LocationDef {
   repName?: string;
   /** Two background townsfolk texture base keys for this duel. */
   npcs?: readonly [string, string];
+  /** Duel-scene positions for those townsfolk, partly hidden by occluders. */
+  npcSpots?: readonly [DuelSpot, DuelSpot];
+  /** Victory representative position in the duel scene. */
+  repSpot?: DuelSpot;
+  /** Background regions redrawn in front of townsfolk and the representative. */
+  occluders?: readonly DuelOccluder[];
   thankYou: string;
 }
 
@@ -29,6 +47,12 @@ export const LOCATIONS: LocationDef[] = [
     id: "main-street", name: "MAIN STREET", fighterId: "yello-billy",
     mapX: 0.70, mapY: 0.70, posterX: 0.62, posterY: 0.70,
     bgKey: "bg-main-street", repKey: "rep-mainstreet", repName: "STEW POTTS",
+    npcSpots: [{ x: 27, y: 240 }, { x: 243, y: 240 }],
+    repSpot: { x: 57, y: 240 },
+    occluders: [
+      { x: 0, y: 205, width: 96, height: 55 },
+      { x: 174, y: 205, width: 96, height: 55 },
+    ],
     thankYou: "Store's open again! First pickle's free, Sheriff.",
   },
   {
@@ -36,6 +60,12 @@ export const LOCATIONS: LocationDef[] = [
     mapX: 0.29, mapY: 0.275, posterX: 0.29, posterY: 0.275,
     bgKey: "bg-saloon", repKey: "rep-saloon", repName: "BARMAN",
     npcs: ["npc-oldtimer", "npc-townman"],
+    npcSpots: [{ x: 48, y: 142 }, { x: 236, y: 148 }],
+    repSpot: { x: 62, y: 142 },
+    occluders: [
+      { x: 0, y: 92, width: 104, height: 76 },
+      { x: 206, y: 96, width: 64, height: 78 },
+    ],
     thankYou: "First round's on the house, Sheriff. The good stuff, this time.",
   },
   {
