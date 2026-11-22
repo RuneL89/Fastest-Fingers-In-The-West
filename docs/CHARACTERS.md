@@ -147,8 +147,10 @@ Yello Billy set:
   revolver dropped.
 - **Personality (dialogue, deferred batch):** all gambling focused, smooth
   talker.
-- **Art:** all four frames generated and approved 2026-11-21
-  (`src/game/assets/gen/sam-snakeeyes-{idle,aim,hit,down}.png`).
+- **Art:** complete seven-frame duel set integrated 2026-11-22
+  (`src/game/assets/gen/sam-snakeeyes-{idle,draw,aim,flinch,fire,hit,down}.png`).
+  The original idle, aim, hit, and down frames were retained; draw, flinch,
+  and fire were added for the gambling-den duel.
 
 ### Goon: Greg Goose — The Trapper (interview complete 2026-11-21)
 
@@ -254,6 +256,17 @@ Every location has:
 No personal connections between citizens and goons (no forced-to-pour
 backstories, no family ties).
 
+### Representative: Busted Ben — Gambling Den (complete 2026-11-22)
+
+- **Role:** An elderly gambler who has lost everything at Snakeeyes' rigged table.
+- **Look:** Short grey hair, drooping grey moustache, threadbare patched brown
+  suit, and frayed cream shirt.
+- **Base state:** Worried, studying an empty open wallet.
+- **Flinch state:** Cowering with his hands raised, wallet dropped.
+- **Happy state:** Jumping with joy and raising his recovered gold pocket watch.
+- **Thank-you line:** "My lucky watch! You're aces, Sheriff. Aces!"
+- **Art:** `src/game/assets/gen/rep-gambling-den{,-flinch,-happy}.png`.
+
 ## Character interviews
 
 Each identity below is filled by a dedicated interview (goons 1-5, then Bart,
@@ -265,8 +278,8 @@ then the five representatives). Status per character:
 - [x] Goon 4: Greg Goose (The Trapper, art approved)
 - [x] Goon 5: Dandy Dan (The Dandy Showboat, art approved)
 - [x] Black Bart (Leader, art approved)
-- [ ] Representative 1
-- [ ] Representative 2
-- [ ] Representative 3
+- [x] Representative 1: Stew Potts (Main Street, sprite complete)
+- [x] Representative 2: Barman (Saloon, sprite complete)
+- [x] Representative 3: Busted Ben (Gambling Den, sprite complete)
 - [ ] Representative 4
 - [ ] Representative 5

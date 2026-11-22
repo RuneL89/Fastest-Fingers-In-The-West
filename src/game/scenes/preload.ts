@@ -29,6 +29,17 @@ import ryeFire from "../assets/gen/three-finger-rye-fire.png";
 import ryeHit from "../assets/gen/three-finger-rye-hit.png";
 import ryeDown from "../assets/gen/three-finger-rye-down.png";
 
+import snakeIdle from "../assets/gen/sam-snakeeyes-idle.png";
+import snakeDraw from "../assets/gen/sam-snakeeyes-draw.png";
+import snakeAim from "../assets/gen/sam-snakeeyes-aim.png";
+import snakeFlinch from "../assets/gen/sam-snakeeyes-flinch.png";
+import snakeFire from "../assets/gen/sam-snakeeyes-fire.png";
+import snakeHit from "../assets/gen/sam-snakeeyes-hit.png";
+import snakeDown from "../assets/gen/sam-snakeeyes-down.png";
+
+import bgGamblingDen from "../assets/gen/bg-gambling-den.png";
+import propPokerTable from "../assets/gen/prop-poker-table.png";
+
 import posterBilly from "../assets/gen/poster-yello-billy.png";
 import posterRye from "../assets/gen/poster-three-finger-rye.png";
 import posterSnakeeyes from "../assets/gen/poster-sam-snakeeyes.png";
@@ -55,6 +66,9 @@ import repStewHappy from "../assets/gen/rep-mainstreet-happy.png";
 import repBarman from "../assets/gen/rep-saloon.png";
 import repBarmanFlinch from "../assets/gen/rep-saloon-flinch.png";
 import repBarmanHappy from "../assets/gen/rep-saloon-happy.png";
+import repBen from "../assets/gen/rep-gambling-den.png";
+import repBenFlinch from "../assets/gen/rep-gambling-den-flinch.png";
+import repBenHappy from "../assets/gen/rep-gambling-den-happy.png";
 
 export function loadAssets(scene: Phaser.Scene): void {
   const imgs: Record<string, string> = {
@@ -80,6 +94,15 @@ export function loadAssets(scene: Phaser.Scene): void {
     "three-finger-rye-fire": ryeFire,
     "three-finger-rye-hit": ryeHit,
     "three-finger-rye-down": ryeDown,
+    "sam-snakeeyes-idle": snakeIdle,
+    "sam-snakeeyes-draw": snakeDraw,
+    "sam-snakeeyes-aim": snakeAim,
+    "sam-snakeeyes-flinch": snakeFlinch,
+    "sam-snakeeyes-fire": snakeFire,
+    "sam-snakeeyes-hit": snakeHit,
+    "sam-snakeeyes-down": snakeDown,
+    "bg-gambling-den": bgGamblingDen,
+    "prop-poker-table": propPokerTable,
     "poster-yello-billy": posterBilly,
     "poster-three-finger-rye": posterRye,
     "poster-sam-snakeeyes": posterSnakeeyes,
@@ -104,6 +127,9 @@ export function loadAssets(scene: Phaser.Scene): void {
     "rep-saloon": repBarman,
     "rep-saloon-flinch": repBarmanFlinch,
     "rep-saloon-happy": repBarmanHappy,
+    "rep-gambling-den": repBen,
+    "rep-gambling-den-flinch": repBenFlinch,
+    "rep-gambling-den-happy": repBenHappy,
   };
   for (const [key, url] of Object.entries(imgs)) {
     if (!scene.textures.exists(key)) scene.load.image(key, url);

@@ -112,9 +112,28 @@ export const LOCATIONS: LocationDef[] = [
   },
   {
     id: "gambling-den", name: "GAMBLING DEN", fighterId: "sam-snakeeyes",
-    mapX: 0.285, mapY: 0.69, posterX: 0.29, posterY: 0.77,
-    bgKey: "bg-gambling-den", repKey: null,
-    thankYou: "You cleaned him out! The town owes you its wallets.",
+    mapX: 0.29, mapY: 0.77, posterX: 0.29, posterY: 0.77,
+    bgKey: "bg-gambling-den", repKey: "rep-gambling-den", repName: "BUSTED BEN",
+    // The rigged poker game on the right, a second card table on the left.
+    // Scale-mapped like the saloon; the center duel lane stays clear.
+    crowd: [
+      { key: "npc-townman", x: 80, y: 150, h: hOf(METERS.npc, 150) },
+      { key: "npc-matron", x: 180, y: 150, h: hOf(METERS.npc, 150) },
+      { key: "npc-matron", x: 45, y: 182, h: hOf(METERS.npc, 182) },
+      { key: "npc-laborer", x: 208, y: 198, h: hOf(METERS.npc, 198), flip: true },
+      { key: "npc-oldtimer", x: 182, y: 205, h: hOf(METERS.npc, 205) },
+      { key: "npc-townman", x: 60, y: 216, h: hOf(METERS.npc, 216), flip: true },
+      { key: "npc-laborer", x: 30, y: 252, h: hOf(METERS.npc, 252), flip: true },
+    ],
+    props: [
+      { key: "prop-poker-table", x: 208, y: 214, h: hOf(METERS.table, 214) },
+      { key: "prop-chair-upright", x: 240, y: 222, h: hOf(METERS.chair, 222) },
+      { key: "prop-table-round", x: 60, y: 230, h: hOf(METERS.table, 230) },
+      { key: "prop-chair-upright", x: 90, y: 235, h: hOf(METERS.chair, 235) },
+    ],
+    repSpot: { x: 105, y: 185 },
+    repH: 70,
+    thankYou: "My lucky watch! You're aces, Sheriff. Aces!",
   },
   {
     id: "church", name: "THE CHURCH", fighterId: "dandy-dan",

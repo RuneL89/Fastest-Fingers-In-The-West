@@ -185,3 +185,48 @@ All four props are trimmed to their alpha bounding box. A separate bar-counter
 prop was generated and rejected (wrong facing angle); the counter stays painted
 in the background, exactly as the user directed. Staging files and the rejected
 variants live in `art-staging/saloon-v2/`.
+
+
+## Phase 2A gambling-den art and final prompt record (2026-11-22)
+
+The gambling-den background, separate card table, Snakeeyes motion frames, and Busted Ben representative are complete. Generation ran through the Kimi image gateway. The raw PNGs in `src/game/assets/gen/` are the canonical runtime assets. Transparent sprites are trimmed to their alpha bounding boxes, with no NES quantization applied.
+
+The wording below is the reusable final prompt record. Existing approved Snakeeyes idle, aim, hit, and down frames were retained as identity references.
+
+### Gambling-den set
+
+| Asset | Final prompt requirements | Reference |
+|---|---|---|
+| `bg-gambling-den.png` | `8-bit pixel art Wild West gambling den interior seen from a duel position, green and brown wooden wall paneling, swinging doors centered in the back wall, green-curtained window on the right, wall lanterns, framed painting of a dog with playing cards, wooden plank floor with scattered playing cards and IOU slips, flat solid colors, limited NES color palette, crisp square pixels, no people, no characters, no tables, no chairs.` | Accepted saloon architecture as style reference |
+| `prop-poker-table.png` | `16-bit NES pixel art round wooden card table, green felt playing surface with a few playing cards on top, sturdy pedestal base, viewed from standing duel eye level with a slightly elliptical top, flat solid colors, crisp square pixels, thick black outline, transparent background.` | Accepted saloon furniture as style reference |
+
+The first table request used poker-and-chips wording and was rejected by the generator's safety policy. The accepted prompt describes an ordinary wooden card table with green felt and playing cards. No chips are used.
+
+### Snakeeyes motion frames
+
+Shared identity: medium-built card sharp in a tall black hat with two playing cards in the band, thin waxed moustache, black long duster, white shirt, dark red vest, dark trousers, gold watch chain, and dice bolo tie. Full-body 16-bit NES pixel-art sprite, crisp square pixels, flat colors, thick black outline, transparent background.
+
+| Asset | Final prompt requirements | Reference |
+|---|---|---|
+| `sam-snakeeyes-draw.png` | `Same Sam Snakeeyes identity and clothing, right hand pulling the revolver from its holster in a readable mid-draw pose, revolver angled downward, confident hunched stance.` | Approved Snakeeyes idle |
+| `sam-snakeeyes-flinch.png` | `Same Sam Snakeeyes identity, sudden recoil with shoulders hunched and face tense, one playing card slipping from his hat band, long coat reacting to the movement.` | Approved Snakeeyes idle and aim |
+| `sam-snakeeyes-fire.png` | `Same Sam Snakeeyes identity, one-handed revolver shot with the arm extended toward the viewer, bright muzzle flash, forceful but controlled recoil, consistent clothing and handedness.` | Approved Snakeeyes aim and draw |
+
+Live verification confirmed the full sequence: idle, draw, aim, flinch on correct player keys, fire, hit, and down.
+
+### Busted Ben identity and states
+
+```
+Elderly Wild West gambler, short grey hair, drooping grey moustache,
+threadbare patched brown suit, frayed cream shirt, tired but kind face.
+Full-body 16-bit NES pixel-art sprite, crisp square pixels, flat solid colors,
+thick black outline, readable expressive pose, transparent background.
+```
+
+| Asset | Final prompt requirements | Reference |
+|---|---|---|
+| `rep-gambling-den.png` | `Worried Busted Ben studying an empty open wallet, shoulders slumped after losing at Snakeeyes' rigged table.` | Busted Ben identity prompt |
+| `rep-gambling-den-flinch.png` | `Same elderly gambler and clothing, cowering with his hands up defensively, empty wallet dropped beside him.` | Approved Busted Ben base |
+| `rep-gambling-den-happy.png` | `Same elderly gambler and clothing, jumping for joy and raising his recovered gold pocket watch, delighted open-mouth smile.` | Approved Busted Ben base |
+
+Ben's victory line is: `My lucky watch! You're aces, Sheriff. Aces!`

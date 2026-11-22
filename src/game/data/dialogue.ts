@@ -33,6 +33,15 @@ export const DIALOGUE: Record<string, DuelDialogue> = {
     ],
     closing: "Hic! I'll... I'll show ya! Barkeep, hold my beer!",
   },
+  "sam-snakeeyes": {
+    opening: "Well, well. The law sits down at my table. The house always wins, Sheriff.",
+    options: [
+      { tone: "STERN", line: "Your game's rigged, Snakeeyes. It ends now." },
+      { tone: "DRY WIT", line: "You call that a poker face? I've seen better on a mule." },
+      { tone: "GENTLE", line: "Fold your hand, Sam. Nobody has to get hurt." },
+    ],
+    closing: "Ha! I'll deal you in... six feet under!",
+  },
 };
 
 export const PROLOGUE: readonly string[] = [

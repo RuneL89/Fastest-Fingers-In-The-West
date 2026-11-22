@@ -282,17 +282,35 @@ export class DuelScene extends Phaser.Scene {
   private buildOptions(): void {
     this.box.say(null, "WHAT DO YOU SAY, SHERIFF?");
     const dlg = DIALOGUE[this.fighter.id];
-    this.optionsPanel = this.add.rectangle(CX, 164, VIEW.W - 16, 88, 0x000000, 0.85)
+    const panelTop = 116;
+    const panelBottom = 224;
+    const textTop = panelTop + 6;
+    const gap = 4;
+    this.optionsPanel = this.add.rectangle(CX, (panelTop + panelBottom) / 2, VIEW.W - 16, panelBottom - panelTop, 0x000000, 0.85)
       .setStrokeStyle(2, 0xac7c00).setDepth(50);
     dlg.options.forEach((opt, i) => {
-      const t = this.add.text(12, 130 + i * 26, "", {
+      const t = this.add.text(12, 0, `${i + 1}. ${opt.tone}: "${opt.line}"`, {
         fontFamily: FONT, fontSize: "8px", color: PAL.white,
-        wordWrap: { width: VIEW.W - 24 }, lineSpacing: 4,
+        wordWrap: { width: VIEW.W - 24 }, lineSpacing: 0,
       }).setDepth(51).setInteractive({ useHandCursor: true })
         .on("pointerover", () => { this.selectedOption = i; this.refreshOptions(); })
         .on("pointerdown", () => this.chooseOption(i));
-      t.setText(`${i + 1}. ${opt.tone}: "${opt.line}"`);
       this.optionTexts.push(t);
+    });
+
+    // Stack by measured wrapped height instead of fixed 26px rows. Longer
+    // choices can use three lines without printing over the next choice.
+    const measure = () => this.optionTexts.reduce((sum, t) => sum + t.height, 0) + gap * (this.optionTexts.length - 1);
+    const available = panelBottom - textTop - 6;
+    let contentHeight = measure();
+    if (contentHeight > available) {
+      this.optionTexts.forEach((t) => t.setFontSize(7));
+      contentHeight = measure();
+    }
+    let y = textTop + Math.max(0, (available - contentHeight) / 2);
+    this.optionTexts.forEach((t) => {
+      t.setY(y);
+      y += t.height + gap;
     });
     this.refreshOptions();
   }

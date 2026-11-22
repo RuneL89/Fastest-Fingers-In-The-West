@@ -58,11 +58,15 @@ Final prompt requirements and the canonical raw-PNG policy are recorded in `ART.
 
 The complete two-life saloon duel is playable, with Rye dialogue and phrase pool, saloon NPCs, letter-by-letter outlaw typing, the full live idle/draw/aim/fire sequence, barkeeper thank-you, and freed-saloon map state. Regression coverage includes both victories, game over/restart, loading, desktop and mobile keyboard input, and AI pacing.
 
-## Phase 2A — ART: Gambling Den Set (Sam Snakeeyes)
+## Phase 2A — ART: Gambling Den Set (Sam Snakeeyes) (COMPLETE 2026-11-22)
 
-Den background, poster, Snakeeyes draw/flinch/fire frames, representative interview + sprite.
+Completed the green-and-brown den background, separate green-felt card table, Snakeeyes draw/flinch/fire frames, and Busted Ben's worried/flinch/happy representative set. His existing poster and idle/aim/hit/down frames were retained. Final reusable prompts and the raw-PNG policy are recorded in `ART.md`.
 
-## Phase 3 — DEV: Snakeeyes Duel
+## Phase 3 — DEV: Snakeeyes Duel (COMPLETE 2026-11-22)
+
+The complete two-life gambling-den duel is playable with seven depth-sorted townsfolk, four furniture pieces, Snakeeyes dialogue and gambling phrases, pointer and keyboard dialogue selection, the full live idle/draw/aim/fire sequence, Busted Ben's thank-you, and the freed-den map state. Dialogue choices now stack by measured wrapped height so long lines do not overlap.
+
+Verification passed for Billy, Rye, and Snakeeyes victories; both Rye and Snakeeyes animation sequences; game over and full restart; loading; title keyboard opening; AI pacing; and mobile typing. The production build and fresh-browser production checks also passed with zero console errors.
 
 ## Phase 3A — ART: Gold Mine Set (Greg Goose)
 
