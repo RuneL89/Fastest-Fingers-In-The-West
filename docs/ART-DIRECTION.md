@@ -6,7 +6,7 @@
 
 **Palette:** the same "NES-inspired" palette used for the character art (richer than the strict 54-color NES set, but disciplined: flat color blocks, no gradients). One palette rule for all assets keeps characters and backgrounds cohesive.
 
-**Resolution:** 270×300 game view everywhere (Clicks Communicator target). Fighters ~44px tall (~88px on screen), Bart at 1.5× (~132px).
+**Resolution:** 270×300 game view everywhere (Clicks Communicator target). Fighters target ~112px tall in that view, about 37% of the view height, with Bart at 1.5× (~168px). Background townsfolk are scaled down enough to frame the duel but large enough to read clearly on a phone.
 
 ## Asset Pipeline
 
