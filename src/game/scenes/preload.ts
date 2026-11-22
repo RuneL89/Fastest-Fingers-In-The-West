@@ -6,6 +6,11 @@ import Phaser from "phaser";
 
 import bgMainStreet from "../assets/gen/bg-main-street.png";
 import bgSaloon from "../assets/gen/bg-saloon.png";
+import bgSaloonV2 from "../assets/gen/bg-saloon-v2.png";
+import propTableRound from "../assets/gen/prop-table-round.png";
+import propTableTilted from "../assets/gen/prop-table-tilted.png";
+import propChairUpright from "../assets/gen/prop-chair-upright.png";
+import propChairBroken from "../assets/gen/prop-chair-broken.png";
 import mapImg from "../assets/gen/map-tombwood-creek.png";
 
 import billyIdle from "../assets/gen/yello-billy-idle.png";
@@ -55,6 +60,11 @@ export function loadAssets(scene: Phaser.Scene): void {
   const imgs: Record<string, string> = {
     "bg-main-street": bgMainStreet,
     "bg-saloon": bgSaloon,
+    "bg-saloon-v2": bgSaloonV2,
+    "prop-table-round": propTableRound,
+    "prop-table-tilted": propTableTilted,
+    "prop-chair-upright": propChairUpright,
+    "prop-chair-broken": propChairBroken,
     "map": mapImg,
     "yello-billy-idle": billyIdle,
     "yello-billy-draw": billyDraw,

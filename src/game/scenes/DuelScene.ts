@@ -128,22 +128,48 @@ export class DuelScene extends Phaser.Scene {
 
     this.add.image(0, 0, this.loc.bgKey).setOrigin(0, 0).setDisplaySize(VIEW.W, VIEW.H);
 
-    // Background townsfolk stay inside the painted scene, partly behind the
-    // bar, tables, or storefronts. The occluders remain over their happy
-    // victory states so they celebrate from cover instead of the foreground.
-    const npcKeys = this.loc.npcs ?? ["npc-townman", "npc-matron"];
-    const npcSpots = this.loc.npcSpots ?? [{ x: 34, y: 252 }, { x: VIEW.W - 34, y: 252 }];
-    npcKeys.forEach((key, i) => {
-      const img = this.add.image(npcSpots[i].x, npcSpots[i].y, key).setOrigin(0.5, 1);
-      img.setScale(NPC_TARGET_H / img.height);
-      this.npcs.push(img);
-    });
-
+    // Painter's algorithm: townsfolk, furniture, the representative, and the
+    // background occluders are all spawned in feet-y order. A table placed in
+    // front of a person genuinely hides their legs; the bar counter occluder
+    // (depth 168) hides the barman behind it but not nearer townsfolk.
+    // The outlaw always draws last, in the clear center lane.
+    const spawns: { depth: number; spawn: () => void }[] = [];
+    const crowd = this.loc.crowd ?? [
+      { key: "npc-townman", x: 34, y: 252, h: NPC_TARGET_H },
+      { key: "npc-matron", x: VIEW.W - 34, y: 252, h: NPC_TARGET_H },
+    ];
+    for (const c of crowd) {
+      spawns.push({
+        depth: c.y,
+        spawn: () => {
+          const img = this.add.image(c.x, c.y, c.key).setOrigin(0.5, 1);
+          img.setScale(c.h / img.height);
+          if (c.flip) img.setFlipX(true);
+          this.npcs.push(img);
+        },
+      });
+    }
+    for (const p of this.loc.props ?? []) {
+      spawns.push({
+        depth: p.y,
+        spawn: () => {
+          const img = this.add.image(p.x, p.y, p.key).setOrigin(0.5, 1);
+          img.setScale(p.h / img.height);
+        },
+      });
+    }
     const repSpot = this.loc.repSpot ?? { x: CX + 52, y: 250 };
-    this.rep = this.add.image(repSpot.x, repSpot.y, `${this.loc.repKey}-happy`)
-      .setOrigin(0.5, 1).setVisible(false);
-
-    this.addDuelOccluders();
+    spawns.push({
+      depth: repSpot.y,
+      spawn: () => {
+        this.rep = this.add.image(repSpot.x, repSpot.y, `${this.loc.repKey}-happy`)
+          .setOrigin(0.5, 1).setVisible(false);
+      },
+    });
+    (this.loc.occluders ?? []).forEach((r, i) => {
+      spawns.push({ depth: r.y + r.height, spawn: () => this.addDuelOccluder(r, i) });
+    });
+    spawns.sort((a, b) => a.depth - b.depth).forEach((s) => s.spawn());
 
     this.outlaw = this.add.image(CX, 236, `${this.fighter.id}-idle`).setOrigin(0.5, 1);
     this.fitOutlaw();
@@ -379,7 +405,7 @@ export class DuelScene extends Phaser.Scene {
     this.npcs.forEach((n) => n.setTexture(`${n.texture.key}-happy`));
     if (this.loc.repKey) {
       this.rep.setVisible(true);
-      this.rep.setScale(REP_TARGET_H / this.rep.height);
+      this.rep.setScale((this.loc.repH ?? REP_TARGET_H) / this.rep.height);
     }
     this.audio.setMood("title");
     this.box.say(this.loc.repName ?? "TOWNSFOLK", this.loc.thankYou, PAL.greenLight);
@@ -387,27 +413,24 @@ export class DuelScene extends Phaser.Scene {
 
   /* ---------------- helpers ---------------- */
 
-  /** Redraw selected background regions in front of hidden townsfolk. */
-  private addDuelOccluders(): void {
-    if (!this.loc.occluders?.length) return;
+  /** Redraw one background region in front of whoever stands behind it. */
+  private addDuelOccluder(r: { x: number; y: number; width: number; height: number }, i: number): void {
     const src = this.textures.get(this.loc.bgKey).getSourceImage() as HTMLImageElement;
     const scaleX = VIEW.W / src.width;
     const scaleY = VIEW.H / src.height;
-    this.loc.occluders.forEach((r, i) => {
-      const sx = Math.max(0, Math.floor(r.x / scaleX));
-      const sy = Math.max(0, Math.floor(r.y / scaleY));
-      const sw = Math.min(src.width - sx, Math.ceil(r.width / scaleX));
-      const sh = Math.min(src.height - sy, Math.ceil(r.height / scaleY));
-      const key = `${this.loc.bgKey}-occ-${i}`;
-      if (!this.textures.exists(key)) {
-        const tex = this.textures.createCanvas(key, sw, sh);
-        if (!tex) return;
-        const ctx = tex.getContext();
-        ctx.drawImage(src, sx, sy, sw, sh, 0, 0, sw, sh);
-        tex.refresh();
-      }
-      this.add.image(r.x, r.y, key).setOrigin(0, 0).setScale(scaleX, scaleY);
-    });
+    const sx = Math.max(0, Math.floor(r.x / scaleX));
+    const sy = Math.max(0, Math.floor(r.y / scaleY));
+    const sw = Math.min(src.width - sx, Math.ceil(r.width / scaleX));
+    const sh = Math.min(src.height - sy, Math.ceil(r.height / scaleY));
+    const key = `${this.loc.bgKey}-occ-${i}`;
+    if (!this.textures.exists(key)) {
+      const tex = this.textures.createCanvas(key, sw, sh);
+      if (!tex) return;
+      const ctx = tex.getContext();
+      ctx.drawImage(src, sx, sy, sw, sh, 0, 0, sw, sh);
+      tex.refresh();
+    }
+    this.add.image(r.x, r.y, key).setOrigin(0, 0).setScale(scaleX, scaleY);
   }
 
   private fitOutlaw(): void {

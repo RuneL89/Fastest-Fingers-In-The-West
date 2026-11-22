@@ -3,6 +3,8 @@
  * Map hotspot positions are normalized (0..1) against the map image;
  * the MapScene multiplies them by the view size.
  */
+import { hOf, METERS } from "./scale";
+
 export interface DuelSpot {
   x: number;
   y: number;
@@ -13,6 +15,23 @@ export interface DuelOccluder {
   y: number;
   width: number;
   height: number;
+}
+
+/** A townsfolk sprite: feet at (x, y), scaled to h logical pixels tall. */
+export interface DuelActor {
+  key: string;
+  x: number;
+  y: number;
+  h: number;
+  flip?: boolean;
+}
+
+/** A furniture object drawn in the same depth-sorted pass as the crowd. */
+export interface DuelProp {
+  key: string;
+  x: number;
+  y: number;
+  h: number;
 }
 
 export interface LocationDef {
@@ -31,12 +50,14 @@ export interface LocationDef {
   repKey: string | null;
   /** Speaker label for the freed representative's thank-you line. */
   repName?: string;
-  /** Two background townsfolk texture base keys for this duel. */
-  npcs?: readonly [string, string];
-  /** Duel-scene positions for those townsfolk, partly hidden by occluders. */
-  npcSpots?: readonly [DuelSpot, DuelSpot];
+  /** Townsfolk, depth-sorted with props and occluders by feet-y. */
+  crowd?: readonly DuelActor[];
+  /** Furniture objects; an actor standing behind one is genuinely hidden. */
+  props?: readonly DuelProp[];
   /** Victory representative position in the duel scene. */
   repSpot?: DuelSpot;
+  /** Representative pixel height (defaults to REP_TARGET_H in DuelScene). */
+  repH?: number;
   /** Background regions redrawn in front of townsfolk and the representative. */
   occluders?: readonly DuelOccluder[];
   thankYou: string;
@@ -47,7 +68,10 @@ export const LOCATIONS: LocationDef[] = [
     id: "main-street", name: "MAIN STREET", fighterId: "yello-billy",
     mapX: 0.70, mapY: 0.70, posterX: 0.62, posterY: 0.70,
     bgKey: "bg-main-street", repKey: "rep-mainstreet", repName: "STEW POTTS",
-    npcSpots: [{ x: 27, y: 240 }, { x: 243, y: 240 }],
+    crowd: [
+      { key: "npc-townman", x: 27, y: 240, h: 80 },
+      { key: "npc-matron", x: 243, y: 240, h: 80 },
+    ],
     repSpot: { x: 57, y: 240 },
     occluders: [
       { x: 0, y: 205, width: 96, height: 55 },
@@ -58,14 +82,32 @@ export const LOCATIONS: LocationDef[] = [
   {
     id: "saloon", name: "THE SALOON", fighterId: "three-finger-rye",
     mapX: 0.29, mapY: 0.275, posterX: 0.29, posterY: 0.275,
-    bgKey: "bg-saloon", repKey: "rep-saloon", repName: "BARMAN",
-    npcs: ["npc-oldtimer", "npc-townman"],
-    npcSpots: [{ x: 48, y: 142 }, { x: 236, y: 148 }],
-    repSpot: { x: 62, y: 142 },
-    occluders: [
-      { x: 0, y: 92, width: 104, height: 76 },
-      { x: 206, y: 96, width: 64, height: 78 },
+    bgKey: "bg-saloon-v2", repKey: "rep-saloon", repName: "BARMAN",
+    // Busy bar: 7 townsfolk + the barman. Heights come from the scale map
+    // (data/scale.ts); the center duel lane stays clear of people and props.
+    crowd: [
+      { key: "npc-matron", x: 190, y: 150, h: hOf(METERS.npc, 150) },
+      { key: "npc-oldtimer", x: 216, y: 158, h: hOf(METERS.npc, 158), flip: true },
+      { key: "npc-oldtimer", x: 48, y: 188, h: hOf(METERS.npc, 188) },
+      { key: "npc-laborer", x: 218, y: 196, h: hOf(METERS.npc, 196) },
+      { key: "npc-townman", x: 58, y: 214, h: hOf(METERS.npc, 214), flip: true },
+      { key: "npc-matron", x: 244, y: 236, h: hOf(METERS.npc, 236), flip: true },
+      { key: "npc-laborer", x: 26, y: 252, h: hOf(METERS.npc, 252), flip: true },
     ],
+    props: [
+      { key: "prop-table-round", x: 218, y: 208, h: hOf(METERS.table, 208) },
+      { key: "prop-chair-upright", x: 252, y: 212, h: hOf(METERS.chair, 212) },
+      { key: "prop-table-round", x: 58, y: 226, h: hOf(METERS.table, 226) },
+      { key: "prop-chair-upright", x: 30, y: 230, h: hOf(METERS.chair, 230) },
+      { key: "prop-table-tilted", x: 244, y: 252, h: hOf(METERS.tippedTable, 252) },
+      { key: "prop-chair-broken", x: 198, y: 264, h: hOf(METERS.brokenChair, 264) },
+    ],
+    repSpot: { x: 62, y: 142 },
+    repH: 78,
+    // The bar counter is painted into the background; this region is redrawn
+    // at depth 168 so the barman (feet 142) hides behind it while nearer
+    // townsfolk correctly stand in front of it.
+    occluders: [{ x: 0, y: 92, width: 104, height: 76 }],
     thankYou: "First round's on the house, Sheriff. The good stuff, this time.",
   },
   {

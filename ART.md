@@ -165,3 +165,23 @@ square pixels, flat solid colors, thick black outline, transparent background.
 | `rep-saloon-happy.png` | Use the approved new barkeeper himself as reference. `Same slim barkeeper and clothing, jumping with joy, both arms raised high, huge open-mouth grin.` |
 
 For opaque first-pass sprite renders, only the contiguous backdrop was removed with border-seeded flood fill and color tolerance. Character interiors were preserved. Approved raw transparent PNGs are loaded directly by the game.
+
+## Saloon v2 scene art (2026-11-22)
+
+The single painted saloon background made furniture occlusion fragile (NPCs read as
+embedded in tabletops). The scene is now composited: background architecture +
+separate furniture sprites + depth-sorted crowd. See `docs/SCALE-MAP.md` for the
+size/perspective system and `src/game/data/locations.ts` for placement.
+
+| Asset | Prompt requirements | Reference |
+|---|---|---|
+| `bg-saloon-v2.png` | `8-bit pixel art Wild West saloon interior seen from a duel position, wooden bar counter with brass rail running diagonally along the left wall, bottles on shelves behind the counter, saloon swinging doors centered in the back wall, wanted poster and window on the right wall, longhorn skulls, empty wooden plank floor with a few smashed whiskey bottles, warm brown and amber tones, very low detail, flat solid colors, limited NES color palette, crisp square pixels, NES video game background, no people, no characters, no tables, no chairs, no stools, no barrels, keep the bar counter.` | approved `bg-saloon.png` |
+| `prop-table-round.png` | `16-bit NES pixel art Wild West saloon round wooden table, upright and sturdy, pedestal base, viewed from a standing duel eye level with a slightly elliptical round top, warm brown planks, flat solid colors, crisp square pixels, thick black outline, very low detail, transparent background` | approved `bg-saloon.png` |
+| `prop-table-tilted.png` | Same style; overturned round table lying on its side at a dynamic angle. | approved `bg-saloon.png` |
+| `prop-chair-upright.png` | Same style; upright wooden chair, simple plank backrest and legs. | approved `bg-saloon.png` |
+| `prop-chair-broken.png` | Same style; smashed chair, snapped leg, knocked aside in a bar fight. | approved `bg-saloon.png` |
+
+All four props are trimmed to their alpha bounding box. A separate bar-counter
+prop was generated and rejected (wrong facing angle); the counter stays painted
+in the background, exactly as the user directed. Staging files and the rejected
+variants live in `art-staging/saloon-v2/`.
